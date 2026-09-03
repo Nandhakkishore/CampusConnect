@@ -36,6 +36,7 @@ model Profile {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   fullName     String
   avatarUrl    String?
+  pushToken    String?
   bio          String?
   branch       String?
   gradYear     Int?

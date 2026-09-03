@@ -8,6 +8,7 @@ import { profileApi } from '../api/profileApi';
 export const EditProfileScreen = ({ route, navigation }: any) => {
   const existing = route.params?.profile || {};
 
+  const [avatarUrl, setAvatarUrl] = useState(existing.avatarUrl || '');
   const [fullName, setFullName] = useState(existing.fullName || '');
   const [bio, setBio] = useState(existing.bio || '');
   const [branch, setBranch] = useState(existing.branch || 'Computer Science');
@@ -31,6 +32,7 @@ export const EditProfileScreen = ({ route, navigation }: any) => {
       setLoading(true);
       const res = await profileApi.updateProfile({
         fullName: fullName.trim(),
+        avatarUrl: avatarUrl.trim(),
         bio: bio.trim(),
         branch: branch.trim(),
         gradYear: parseInt(gradYear, 10) || 2026,
@@ -56,6 +58,14 @@ export const EditProfileScreen = ({ route, navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.screenTitle}>Edit Profile</Text>
+
+        <Input
+          label="Profile Picture URL / Avatar"
+          placeholder="https://images.unsplash.com/... or Base64 URI"
+          value={avatarUrl}
+          onChangeText={setAvatarUrl}
+          autoCapitalize="none"
+        />
 
         <Input
           label="Full Name *"

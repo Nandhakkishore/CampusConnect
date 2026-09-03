@@ -7,12 +7,13 @@ import teamRoutes from './routes/teamRoutes';
 import chatRoutes from './routes/chatRoutes';
 import gigRoutes from './routes/gigRoutes';
 import notificationRoutes from './routes/notificationRoutes';
+import uploadRoutes from './routes/uploadRoutes';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // Root Welcome Route
 app.get('/', (req, res) => {
@@ -37,6 +38,7 @@ app.use('/api', teamRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/gigs', gigRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Error Middleware
 app.use(errorHandler);

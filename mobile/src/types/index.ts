@@ -9,6 +9,7 @@ export interface Profile {
   userId: string;
   fullName: string;
   avatarUrl?: string | null;
+  pushToken?: string | null;
   bio?: string | null;
   branch?: string | null;
   gradYear?: number | null;

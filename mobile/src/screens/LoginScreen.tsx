@@ -93,6 +93,15 @@ export const LoginScreen = ({ navigation }: any) => {
             style={styles.submitBtn}
           />
 
+          <Button
+            title="🐙 Continue with GitHub"
+            variant="outline"
+            onPress={() => {
+              showAlert('GitHub Auth', 'Enter your GitHub username during profile creation or sign in with your campus email.');
+            }}
+            style={styles.githubBtn}
+          />
+
           <TouchableOpacity
             onPress={() => navigation.navigate('Register')}
             style={styles.linkContainer}
@@ -162,6 +171,9 @@ const styles = StyleSheet.create({
   },
   submitBtn: {
     marginTop: 10,
+  },
+  githubBtn: {
+    marginTop: 12,
   },
   linkContainer: {
     marginTop: 20,

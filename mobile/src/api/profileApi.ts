@@ -16,4 +16,14 @@ export const profileApi = {
     const res = await apiClient.put('/profiles/me', data);
     return res.data;
   },
+
+  uploadAvatar: async (imageBase64: string): Promise<{ success: boolean; data: { avatarUrl: string } }> => {
+    const res = await apiClient.post('/upload/avatar', { imageBase64 });
+    return res.data;
+  },
+
+  savePushToken: async (pushToken: string): Promise<{ success: boolean }> => {
+    const res = await apiClient.post('/upload/push-token', { pushToken });
+    return res.data;
+  },
 };
