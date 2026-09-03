@@ -189,7 +189,11 @@ export const mockPrisma = {
   },
   team: {
     findUnique: jest.fn().mockImplementation(async ({ where }: any) => {
-      return mockStore.teams.find((t) => t.projectId === where.projectId) || null;
+      const team = mockStore.teams.find((t) => t.projectId === where.projectId);
+      if (!team) return null;
+      const members = mockStore.teamMembers.filter((m) => m.teamId === team.id);
+      const conversation = mockStore.conversations.find((c) => c.teamId === team.id) || null;
+      return { ...team, members, conversation };
     }),
     create: jest.fn().mockImplementation(async ({ data }: any) => {
       const team = { id: `team_${Date.now()}`, ...data, members: [], conversation: null };
