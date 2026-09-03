@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { mockPrisma } from '../../tests/mockDb';
+import { mockPrisma } from './mockDb';
 
 const realPrisma = new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
