@@ -50,16 +50,26 @@ export const LoginScreen = ({ navigation }: any) => {
   };
 
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleModalVisible, setGoogleModalVisible] = useState(false);
+  const [googleEmailInput, setGoogleEmailInput] = useState('');
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSubmit = async (selectedEmail?: string) => {
+    const targetEmail = selectedEmail || googleEmailInput.trim();
+    if (!targetEmail) {
+      showAlert('Error', 'Please enter your Google email address');
+      return;
+    }
+
+    setGoogleModalVisible(false);
     setErrorMsg('');
+
     try {
       setGoogleLoading(true);
-      const testGoogleEmail = `student_${Math.floor(Math.random() * 1000)}@campus.edu`;
       const res = await authApi.googleLogin({
-        email: testGoogleEmail,
-        fullName: 'Campus Google Student',
+        email: targetEmail.toLowerCase(),
+        fullName: targetEmail.split('@')[0].replace('.', ' '),
       });
+
       if (res && res.success) {
         setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
       } else {
@@ -70,9 +80,7 @@ export const LoginScreen = ({ navigation }: any) => {
     } catch (err: any) {
       let msg = 'Google Sign-In failed';
       if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
-        msg = 'Server connection timed out (cold start). Please try again in a few seconds.';
-      } else if (typeof err.response?.data === 'string' && err.response.data.includes('Cannot POST')) {
-        msg = 'Google Auth endpoint is deploying on server. Please try again in a moment.';
+        msg = 'Server connection timed out. Please try again in a few seconds.';
       } else if (err.response?.data?.message) {
         msg = err.response.data.message;
       }
@@ -130,7 +138,7 @@ export const LoginScreen = ({ navigation }: any) => {
           <Button
             title="🌐 Continue with Google"
             variant="secondary"
-            onPress={handleGoogleLogin}
+            onPress={() => setGoogleModalVisible(true)}
             loading={googleLoading}
             style={styles.googleBtn}
           />
@@ -153,6 +161,58 @@ export const LoginScreen = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* Google Account Modal */}
+        {googleModalVisible && (
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>🌐 Sign in with Google</Text>
+              <Text style={styles.modalSubtitle}>Choose or enter your Google / Campus Gmail address</Text>
+
+              <Input
+                label="Google Email Address"
+                placeholder="your.email@gmail.com or @campus.edu"
+                value={googleEmailInput}
+                onChangeText={setGoogleEmailInput}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+
+              <View style={styles.quickAccountsLabel}>
+                <Text style={{ color: colors.textMuted, fontSize: 12 }}>Or quick-select demo account:</Text>
+              </View>
+
+              <View style={styles.chipRow}>
+                <TouchableOpacity
+                  style={styles.accountChip}
+                  onPress={() => handleGoogleSubmit('alex.chen@campus.edu')}
+                >
+                  <Text style={styles.accountChipText}>Alex Chen (alex.chen@campus.edu)</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.accountChip}
+                  onPress={() => handleGoogleSubmit('maya.patel@campus.edu')}
+                >
+                  <Text style={styles.accountChipText}>Maya Patel (maya.patel@campus.edu)</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.modalActions}>
+                <Button
+                  title="Cancel"
+                  variant="outline"
+                  onPress={() => setGoogleModalVisible(false)}
+                  style={{ flex: 1, marginRight: 8 }}
+                />
+                <Button
+                  title="Sign In"
+                  onPress={() => handleGoogleSubmit()}
+                  style={{ flex: 1, marginLeft: 8 }}
+                />
+              </View>
+            </View>
+          </View>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -231,5 +291,61 @@ const styles = StyleSheet.create({
   linkHighlight: {
     color: colors.primary,
     fontWeight: '600',
+  },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    zIndex: 1000,
+  },
+  modalCard: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: 6,
+  },
+  modalSubtitle: {
+    fontSize: 13,
+    color: colors.textMuted,
+    marginBottom: 16,
+  },
+  quickAccountsLabel: {
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  chipRow: {
+    marginBottom: 16,
+  },
+  accountChip: {
+    backgroundColor: colors.surfaceLight,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 8,
+  },
+  accountChipText: {
+    color: colors.primary,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
   },
 });
