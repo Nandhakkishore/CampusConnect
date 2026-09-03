@@ -254,52 +254,61 @@ export const LoginScreen = ({ navigation }: any) => {
           </View>
         )}
 
-        {/* GitHub Account Modal */}
+        {/* Official GitHub OAuth Modal */}
         {githubModalVisible && (
           <View style={styles.modalOverlay}>
-            <View style={styles.modalCard}>
-              <Text style={styles.modalTitle}>🐙 Sign in with GitHub</Text>
-              <Text style={styles.modalSubtitle}>Enter your GitHub username or quick-select profile</Text>
+            <View style={styles.githubAuthCard}>
+              <View style={styles.githubHeaderRow}>
+                <Text style={{ fontSize: 32 }}>🐙</Text>
+                <Text style={{ fontSize: 20, color: '#8b949e', marginHorizontal: 12 }}>➔</Text>
+                <Text style={{ fontSize: 28 }}>🎓</Text>
+              </View>
+
+              <Text style={styles.githubModalTitle}>Sign in to GitHub</Text>
+              <Text style={styles.githubModalSubtitle}>
+                Authorize <Text style={{ fontWeight: '700', color: '#f0f6fc' }}>CampusConnect</Text> to access your public profile and repositories
+              </Text>
 
               <Input
-                label="GitHub Username"
+                label="Username or email address"
                 placeholder="e.g. Nandhakkishore, alexchen-dev"
                 value={githubUsernameInput}
                 onChangeText={setGithubUsernameInput}
                 autoCapitalize="none"
               />
 
-              <View style={styles.quickAccountsLabel}>
-                <Text style={{ color: colors.textMuted, fontSize: 12 }}>Or quick-select demo developer account:</Text>
+              <View style={{ marginTop: 4, marginBottom: 12 }}>
+                <Text style={{ color: '#8b949e', fontSize: 12, marginBottom: 6 }}>Or quick-authorize demo developer:</Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TouchableOpacity
+                    style={styles.githubChip}
+                    onPress={() => handleGithubSubmit('alexchen-dev')}
+                  >
+                    <Text style={styles.githubChipText}>@alexchen-dev</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.githubChip}
+                    onPress={() => handleGithubSubmit('mayapatel-ai')}
+                  >
+                    <Text style={styles.githubChipText}>@mayapatel-ai</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
 
-              <View style={styles.chipRow}>
+              <View style={styles.githubActions}>
                 <TouchableOpacity
-                  style={styles.accountChip}
-                  onPress={() => handleGithubSubmit('alexchen-dev')}
-                >
-                  <Text style={styles.accountChipText}>Alex Chen (@alexchen-dev)</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.accountChip}
-                  onPress={() => handleGithubSubmit('mayapatel-ai')}
-                >
-                  <Text style={styles.accountChipText}>Maya Patel (@mayapatel-ai)</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.modalActions}>
-                <Button
-                  title="Cancel"
-                  variant="outline"
+                  style={styles.githubCancelBtn}
                   onPress={() => setGithubModalVisible(false)}
-                  style={{ flex: 1, marginRight: 8 }}
-                />
-                <Button
-                  title="Sign In"
+                >
+                  <Text style={styles.githubCancelText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.githubSubmitBtn}
                   onPress={() => handleGithubSubmit()}
-                  style={{ flex: 1, marginLeft: 8 }}
-                />
+                >
+                  <Text style={styles.githubSubmitText}>Authorize CampusConnect</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -438,5 +447,79 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 10,
+  },
+  githubAuthCard: {
+    backgroundColor: '#0d1117',
+    borderColor: '#30363d',
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 24,
+    width: '100%',
+    maxWidth: 440,
+  },
+  githubHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  githubModalTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#f0f6fc',
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  githubModalSubtitle: {
+    fontSize: 13,
+    color: '#8b949e',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 18,
+  },
+  githubChip: {
+    backgroundColor: '#21262d',
+    borderColor: '#30363d',
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  githubChipText: {
+    color: '#58a6ff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  githubActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+    gap: 12,
+  },
+  githubCancelBtn: {
+    flex: 1,
+    backgroundColor: '#21262d',
+    borderColor: '#30363d',
+    borderWidth: 1,
+    paddingVertical: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  githubCancelText: {
+    color: '#c9d1d9',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  githubSubmitBtn: {
+    flex: 1.6,
+    backgroundColor: '#238636',
+    paddingVertical: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  githubSubmitText: {
+    color: '#ffffff',
+    fontWeight: '700',
+    fontSize: 14,
   },
 });
