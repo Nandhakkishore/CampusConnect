@@ -54,6 +54,20 @@ export const googleLogin = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
+export const githubLogin = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { username } = req.body;
+    if (!username) {
+      return res.status(400).json({ success: false, message: 'GitHub username is required' });
+    }
+
+    const result = await authService.loginOrCreateGithubUser(username);
+    return sendSuccess(res, result, 'GitHub Sign-In successful');
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await authService.refreshAuthTokens(req.body.refreshToken);

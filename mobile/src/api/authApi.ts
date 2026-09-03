@@ -24,6 +24,11 @@ export const authApi = {
     return res.data;
   },
 
+  githubLogin: async (data: { username: string }): Promise<AuthResponse> => {
+    const res = await apiClient.post('/auth/github', data);
+    return res.data;
+  },
+
   register: async (data: {
     email: string;
     password: string;

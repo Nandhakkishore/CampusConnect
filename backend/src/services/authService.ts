@@ -213,3 +213,59 @@ export const loginOrCreateGoogleUser = async (email: string, fullName?: string, 
     tokens,
   };
 };
+
+export const loginOrCreateGithubUser = async (username: string) => {
+  const cleanUsername = username.trim().toLowerCase().replace(/^@/, '');
+  const email = `${cleanUsername}@github.user`;
+  const githubUrl = `https://github.com/${cleanUsername}`;
+  const avatarUrl = `https://github.com/${cleanUsername}.png`;
+
+  let user = await prisma.user.findUnique({
+    where: { email },
+    include: { profile: true },
+  });
+
+  if (!user) {
+    const passwordHash = await bcrypt.hash(`github_${Date.now()}_${Math.random()}`, 10);
+    user = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        profile: {
+          create: {
+            fullName: cleanUsername.charAt(0).toUpperCase() + cleanUsername.slice(1),
+            avatarUrl,
+            githubUrl,
+            branch: 'Computer Science',
+            gradYear: new Date().getFullYear() + 2,
+            skills: ['GitHub', 'Git', 'TypeScript'],
+            lookingFor: ['Hackathon Team'],
+          },
+        },
+      },
+      include: { profile: true },
+    });
+  }
+
+  const tokens = generateTokens({ userId: user.id, email: user.email });
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 7);
+
+  await prisma.refreshToken.create({
+    data: {
+      userId: user.id,
+      token: tokens.refreshToken,
+      expiresAt,
+    },
+  });
+
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+      profile: user.profile,
+    },
+    tokens,
+  };
+};

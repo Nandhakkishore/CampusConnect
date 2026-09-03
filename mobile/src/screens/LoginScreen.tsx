@@ -53,6 +53,10 @@ export const LoginScreen = ({ navigation }: any) => {
   const [googleModalVisible, setGoogleModalVisible] = useState(false);
   const [googleEmailInput, setGoogleEmailInput] = useState('');
 
+  const [githubLoading, setGithubLoading] = useState(false);
+  const [githubModalVisible, setGithubModalVisible] = useState(false);
+  const [githubUsernameInput, setGithubUsernameInput] = useState('');
+
   const handleGoogleSubmit = async (selectedEmail?: string) => {
     const targetEmail = selectedEmail || googleEmailInput.trim();
     if (!targetEmail) {
@@ -88,6 +92,43 @@ export const LoginScreen = ({ navigation }: any) => {
       showAlert('Google Auth Error', msg);
     } finally {
       setGoogleLoading(false);
+    }
+  };
+
+  const handleGithubSubmit = async (selectedUsername?: string) => {
+    const targetUsername = selectedUsername || githubUsernameInput.trim();
+    if (!targetUsername) {
+      showAlert('Error', 'Please enter your GitHub username');
+      return;
+    }
+
+    setGithubModalVisible(false);
+    setErrorMsg('');
+
+    try {
+      setGithubLoading(true);
+      const res = await authApi.githubLogin({
+        username: targetUsername,
+      });
+
+      if (res && res.success) {
+        setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
+      } else {
+        const msg = res?.message || 'GitHub Sign-In failed';
+        setErrorMsg(msg);
+        showAlert('GitHub Auth Error', msg);
+      }
+    } catch (err: any) {
+      let msg = 'GitHub Sign-In failed';
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        msg = 'Server connection timed out. Please try again in a few seconds.';
+      } else if (err.response?.data?.message) {
+        msg = err.response.data.message;
+      }
+      setErrorMsg(msg);
+      showAlert('GitHub Auth Error', msg);
+    } finally {
+      setGithubLoading(false);
     }
   };
 
@@ -146,9 +187,8 @@ export const LoginScreen = ({ navigation }: any) => {
           <Button
             title="🐙 Continue with GitHub"
             variant="outline"
-            onPress={() => {
-              showAlert('GitHub Auth', 'Enter your GitHub username during profile creation or sign in with your campus email.');
-            }}
+            onPress={() => setGithubModalVisible(true)}
+            loading={githubLoading}
             style={styles.githubBtn}
           />
 
@@ -207,6 +247,57 @@ export const LoginScreen = ({ navigation }: any) => {
                 <Button
                   title="Sign In"
                   onPress={() => handleGoogleSubmit()}
+                  style={{ flex: 1, marginLeft: 8 }}
+                />
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* GitHub Account Modal */}
+        {githubModalVisible && (
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>🐙 Sign in with GitHub</Text>
+              <Text style={styles.modalSubtitle}>Enter your GitHub username or quick-select profile</Text>
+
+              <Input
+                label="GitHub Username"
+                placeholder="e.g. Nandhakkishore, alexchen-dev"
+                value={githubUsernameInput}
+                onChangeText={setGithubUsernameInput}
+                autoCapitalize="none"
+              />
+
+              <View style={styles.quickAccountsLabel}>
+                <Text style={{ color: colors.textMuted, fontSize: 12 }}>Or quick-select demo developer account:</Text>
+              </View>
+
+              <View style={styles.chipRow}>
+                <TouchableOpacity
+                  style={styles.accountChip}
+                  onPress={() => handleGithubSubmit('alexchen-dev')}
+                >
+                  <Text style={styles.accountChipText}>Alex Chen (@alexchen-dev)</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.accountChip}
+                  onPress={() => handleGithubSubmit('mayapatel-ai')}
+                >
+                  <Text style={styles.accountChipText}>Maya Patel (@mayapatel-ai)</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.modalActions}>
+                <Button
+                  title="Cancel"
+                  variant="outline"
+                  onPress={() => setGithubModalVisible(false)}
+                  style={{ flex: 1, marginRight: 8 }}
+                />
+                <Button
+                  title="Sign In"
+                  onPress={() => handleGithubSubmit()}
                   style={{ flex: 1, marginLeft: 8 }}
                 />
               </View>
