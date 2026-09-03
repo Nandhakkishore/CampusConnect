@@ -49,9 +49,12 @@ export const LoginScreen = ({ navigation }: any) => {
     }
   };
 
+  const [googleLoading, setGoogleLoading] = useState(false);
+
   const handleGoogleLogin = async () => {
+    setErrorMsg('');
     try {
-      setLoading(true);
+      setGoogleLoading(true);
       const testGoogleEmail = `student_${Math.floor(Math.random() * 1000)}@campus.edu`;
       const res = await authApi.googleLogin({
         email: testGoogleEmail,
@@ -59,12 +62,24 @@ export const LoginScreen = ({ navigation }: any) => {
       });
       if (res && res.success) {
         setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
+      } else {
+        const msg = res?.message || 'Google Sign-In failed';
+        setErrorMsg(msg);
+        showAlert('Google Auth Error', msg);
       }
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Google Sign-In failed';
+      let msg = 'Google Sign-In failed';
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        msg = 'Server connection timed out (cold start). Please try again in a few seconds.';
+      } else if (typeof err.response?.data === 'string' && err.response.data.includes('Cannot POST')) {
+        msg = 'Google Auth endpoint is deploying on server. Please try again in a moment.';
+      } else if (err.response?.data?.message) {
+        msg = err.response.data.message;
+      }
+      setErrorMsg(msg);
       showAlert('Google Auth Error', msg);
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 
@@ -116,6 +131,7 @@ export const LoginScreen = ({ navigation }: any) => {
             title="🌐 Continue with Google"
             variant="secondary"
             onPress={handleGoogleLogin}
+            loading={googleLoading}
             style={styles.googleBtn}
           />
 
