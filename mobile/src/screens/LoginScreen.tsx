@@ -49,6 +49,25 @@ export const LoginScreen = ({ navigation }: any) => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      setLoading(true);
+      const testGoogleEmail = `student_${Math.floor(Math.random() * 1000)}@campus.edu`;
+      const res = await authApi.googleLogin({
+        email: testGoogleEmail,
+        fullName: 'Campus Google Student',
+      });
+      if (res && res.success) {
+        setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
+      }
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Google Sign-In failed';
+      showAlert('Google Auth Error', msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -91,6 +110,13 @@ export const LoginScreen = ({ navigation }: any) => {
             onPress={handleLogin}
             loading={loading}
             style={styles.submitBtn}
+          />
+
+          <Button
+            title="🌐 Continue with Google"
+            variant="secondary"
+            onPress={handleGoogleLogin}
+            style={styles.googleBtn}
           />
 
           <Button
@@ -171,6 +197,9 @@ const styles = StyleSheet.create({
   },
   submitBtn: {
     marginTop: 10,
+  },
+  googleBtn: {
+    marginTop: 12,
   },
   githubBtn: {
     marginTop: 12,

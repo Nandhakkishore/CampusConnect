@@ -163,3 +163,53 @@ export const logoutUser = async (token?: string) => {
   }
   return true;
 };
+
+export const loginOrCreateGoogleUser = async (email: string, fullName?: string, avatarUrl?: string) => {
+  let user = await prisma.user.findUnique({
+    where: { email: email.toLowerCase() },
+    include: { profile: true },
+  });
+
+  if (!user) {
+    const passwordHash = await bcrypt.hash(`google_${Date.now()}_${Math.random()}`, 10);
+    user = await prisma.user.create({
+      data: {
+        email: email.toLowerCase(),
+        passwordHash,
+        profile: {
+          create: {
+            fullName: fullName || email.split('@')[0],
+            avatarUrl: avatarUrl || null,
+            branch: 'Computer Science',
+            gradYear: new Date().getFullYear() + 2,
+            skills: ['JavaScript'],
+            lookingFor: ['Project Teammates'],
+          },
+        },
+      },
+      include: { profile: true },
+    });
+  }
+
+  const tokens = generateTokens({ userId: user.id, email: user.email });
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 7);
+
+  await prisma.refreshToken.create({
+    data: {
+      userId: user.id,
+      token: tokens.refreshToken,
+      expiresAt,
+    },
+  });
+
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+      profile: user.profile,
+    },
+    tokens,
+  };
+};

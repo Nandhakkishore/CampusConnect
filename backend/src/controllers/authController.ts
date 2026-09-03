@@ -40,6 +40,20 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
+export const googleLogin = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, fullName, avatarUrl } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Google email is required' });
+    }
+
+    const result = await authService.loginOrCreateGoogleUser(email, fullName, avatarUrl);
+    return sendSuccess(res, result, 'Google Sign-In successful');
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await authService.refreshAuthTokens(req.body.refreshToken);
