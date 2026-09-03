@@ -27,9 +27,12 @@ export const LoginScreen = ({ navigation }: any) => {
   const [errorMsg, setErrorMsg] = useState('');
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  const handleLogin = async () => {
+  const handleLoginWithCredentials = async (targetEmail?: string, targetPassword?: string) => {
+    const loginEmail = targetEmail || email;
+    const loginPassword = targetPassword || password;
+
     setErrorMsg('');
-    if (!email || !password) {
+    if (!loginEmail || !loginPassword) {
       const err = 'Please fill in email and password';
       setErrorMsg(err);
       showAlert('Error', err);
@@ -38,7 +41,7 @@ export const LoginScreen = ({ navigation }: any) => {
 
     try {
       setLoading(true);
-      const res = await authApi.login({ email, password });
+      const res = await authApi.login({ email: loginEmail, password: loginPassword });
       if (res && res.success) {
         setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
       } else {
@@ -233,13 +236,14 @@ export const LoginScreen = ({ navigation }: any) => {
 
               {/* Account Switcher Bar */}
               <View style={styles.accountSwitcherBox}>
-                <Text style={styles.accountSwitcherTitle}>Switch / Quick Account:</Text>
+                <Text style={styles.accountSwitcherTitle}>Switch Account (Instant Login):</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
                   <TouchableOpacity
                     style={styles.accountChip}
                     onPress={() => {
                       setEmail('alex.chen@campus.edu');
                       setPassword('password123');
+                      handleLoginWithCredentials('alex.chen@campus.edu', 'password123');
                     }}
                   >
                     <Text style={styles.accountChipText}>Alex Chen (alex.chen@campus.edu)</Text>
@@ -250,6 +254,7 @@ export const LoginScreen = ({ navigation }: any) => {
                     onPress={() => {
                       setEmail('maya.patel@campus.edu');
                       setPassword('password123');
+                      handleLoginWithCredentials('maya.patel@campus.edu', 'password123');
                     }}
                   >
                     <Text style={styles.accountChipText}>Maya Patel (maya.patel@campus.edu)</Text>
@@ -299,7 +304,7 @@ export const LoginScreen = ({ navigation }: any) => {
 
               <Button
                 title="Sign In"
-                onPress={handleLogin}
+                onPress={() => handleLoginWithCredentials()}
                 loading={loading}
                 style={styles.submitBtn}
               />
