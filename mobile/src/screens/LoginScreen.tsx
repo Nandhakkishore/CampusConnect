@@ -249,10 +249,61 @@ export const LoginScreen = ({ navigation }: any) => {
           {mode === 'login' ? (
             <>
               <Text style={styles.title}>Welcome Back</Text>
+              <Text style={styles.subtitle}>Sign in to your CampusConnect student developer account</Text>
 
-              {/* Account Switcher Bar */}
+              {/* Social OAuth Buttons at top (like Linear/GitHub) */}
+              <View style={styles.socialButtonsGroup}>
+                <Button
+                  title="🌐 Continue with Google"
+                  variant="secondary"
+                  onPress={handleStandardGoogleOAuth}
+                  loading={googleLoading}
+                  style={styles.googleBtn}
+                />
+
+                <Button
+                  title="🐙 Continue with GitHub"
+                  variant="outline"
+                  onPress={handleStandardGithubOAuth}
+                  loading={githubLoading}
+                  style={styles.githubBtn}
+                />
+              </View>
+
+              {/* Divider Line */}
+              <View style={styles.dividerRow}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>or continue with email</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              <Input
+                label="Campus Email"
+                placeholder="student@campus.edu"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+
+              <Input
+                label="Password"
+                placeholder="••••••••"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
+
+              <Button
+                title="Sign In to CampusConnect"
+                onPress={() => handleLoginWithCredentials()}
+                loading={loading}
+                style={styles.submitBtn}
+              />
+
+              {/* Account Switcher Bar at bottom */}
               <View style={styles.accountSwitcherBox}>
-                <Text style={styles.accountSwitcherTitle}>Switch Account (Instant Login):</Text>
+                <Text style={styles.accountSwitcherTitle}>⚡ Instant Demo Switcher:</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
                   <TouchableOpacity
                     style={styles.accountChip}
@@ -284,13 +335,6 @@ export const LoginScreen = ({ navigation }: any) => {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={styles.accountChip}
-                    onPress={() => handleStandardGithubOAuth('alexchen-dev')}
-                  >
-                    <Text style={styles.accountChipText}>🐙 @alexchen-dev (GitHub)</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
                     style={styles.accountChipNew}
                     onPress={() => {
                       setMode('register');
@@ -300,46 +344,6 @@ export const LoginScreen = ({ navigation }: any) => {
                   </TouchableOpacity>
                 </ScrollView>
               </View>
-
-              <Input
-                label="Campus Email"
-                placeholder="student@campus.edu"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
-
-              <Input
-                label="Password"
-                placeholder="••••••••"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-
-              <Button
-                title="Sign In"
-                onPress={() => handleLoginWithCredentials()}
-                loading={loading}
-                style={styles.submitBtn}
-              />
-
-              <Button
-                title="🌐 Continue with Google"
-                variant="secondary"
-                onPress={handleStandardGoogleOAuth}
-                loading={googleLoading}
-                style={styles.googleBtn}
-              />
-
-              <Button
-                title="🐙 Continue with GitHub"
-                variant="outline"
-                onPress={handleStandardGithubOAuth}
-                loading={githubLoading}
-                style={styles.githubBtn}
-              />
             </>
           ) : (
             <>
@@ -621,6 +625,26 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: '#ffffff',
     fontWeight: '700',
+  },
+  socialButtonsGroup: {
+    marginBottom: 16,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.border,
+  },
+  dividerText: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: '500',
+    marginHorizontal: 12,
+    textTransform: 'uppercase',
   },
   subtitle: {
     fontSize: 13,
