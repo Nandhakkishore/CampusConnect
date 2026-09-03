@@ -3,7 +3,6 @@ import request from 'supertest';
 import app from '../src/app';
 import prisma from '../src/config/db';
 import { resetMockStore } from './mockDb';
-import { describe, it } from 'node:test';
 
 describe('Team Formation & Application Integration Tests', () => {
   let ownerToken: string;
