@@ -1,8 +1,13 @@
 import request from 'supertest';
 import app from '../src/app';
 import prisma from '../src/config/db';
+import { resetMockStore } from './mockDb';
 
 describe('Auth Endpoints Integration Tests', () => {
+  beforeAll(() => {
+    resetMockStore();
+  });
+
   afterAll(async () => {
     await prisma.$disconnect();
   });

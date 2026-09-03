@@ -4,7 +4,7 @@ module.exports = {
   testMatch: ['**/tests/**/*.test.ts'],
   forceExit: true,
   clearMocks: true,
-  resetMocks: true,
+  resetMocks: false,
   restoreMocks: true,
   setupFiles: ['./tests/setupEnv.ts'],
 };
