@@ -167,6 +167,9 @@ export const LoginScreen = ({ navigation }: any) => {
     setGithubModalVisible(true);
   };
 
+  const currentUser = useAuthStore((state) => state.user);
+  const logoutStore = useAuthStore((state) => state.logout);
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -179,6 +182,37 @@ export const LoginScreen = ({ navigation }: any) => {
         </View>
 
         <View style={styles.card}>
+          {/* Active Device Session Banner */}
+          {currentUser && (
+            <View style={styles.activeDeviceSessionBox}>
+              <Text style={styles.activeDeviceBadge}>📱 Active Signed-in Account on Device</Text>
+              <Text style={styles.activeDeviceName}>
+                {currentUser.profile?.fullName || currentUser.email}
+              </Text>
+              <Text style={styles.activeDeviceEmail}>{currentUser.email}</Text>
+
+              <View style={styles.activeDeviceActions}>
+                <Button
+                  title={`Continue as ${currentUser.profile?.fullName?.split(' ')[0] || 'Student'}`}
+                  onPress={() => {
+                    // Re-trigger auth store state
+                    setAuth(currentUser, useAuthStore.getState().accessToken || 'token', useAuthStore.getState().refreshToken || 'token');
+                  }}
+                  style={{ flex: 1, marginRight: 6 }}
+                />
+                <Button
+                  title="Switch / Log Out"
+                  variant="outline"
+                  onPress={() => {
+                    logoutStore();
+                    setErrorMsg('');
+                  }}
+                  style={{ flex: 1, marginLeft: 6 }}
+                />
+              </View>
+            </View>
+          )}
+
           {/* Mode Switcher Tabs */}
           <View style={styles.tabContainer}>
             <TouchableOpacity
@@ -532,6 +566,34 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 16,
     padding: 24,
+  },
+  activeDeviceSessionBox: {
+    backgroundColor: 'rgba(59, 130, 246, 0.12)',
+    borderColor: '#3B82F6',
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+  },
+  activeDeviceBadge: {
+    color: '#60A5FA',
+    fontSize: 12,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  activeDeviceName: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  activeDeviceEmail: {
+    color: colors.textMuted,
+    fontSize: 13,
+    marginBottom: 14,
+  },
+  activeDeviceActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   tabContainer: {
     flexDirection: 'row',
