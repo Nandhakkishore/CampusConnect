@@ -3,6 +3,8 @@ import cors from 'cors';
 import authRoutes from './routes/authRoutes';
 import profileRoutes from './routes/profileRoutes';
 import projectRoutes from './routes/projectRoutes';
+import teamRoutes from './routes/teamRoutes';
+import chatRoutes from './routes/chatRoutes';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -19,6 +21,8 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api', teamRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Error Middleware
 app.use(errorHandler);

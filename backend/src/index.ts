@@ -2,6 +2,7 @@ import http from 'http';
 import dotenv from 'dotenv';
 import app from './app';
 import { Server } from 'socket.io';
+import { setupSocketHandlers } from './sockets/chatSocket';
 
 dotenv.config();
 
@@ -16,13 +17,7 @@ export const io = new Server(server, {
   },
 });
 
-io.on('connection', (socket) => {
-  console.log(`Socket connected: ${socket.id}`);
-  
-  socket.on('disconnect', () => {
-    console.log(`Socket disconnected: ${socket.id}`);
-  });
-});
+setupSocketHandlers(io);
 
 if (process.env.NODE_ENV !== 'test') {
   server.listen(PORT, () => {
