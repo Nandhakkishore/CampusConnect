@@ -2,6 +2,7 @@ import request from 'supertest';
 import app from '../src/app';
 import prisma from '../src/config/db';
 import { resetMockStore } from './mockDb';
+import { describe, it } from 'node:test';
 
 describe('Team Formation & Application Integration Tests', () => {
   let ownerToken: string;
@@ -91,3 +92,15 @@ describe('Team Formation & Application Integration Tests', () => {
     expect(team?.conversation).not.toBeNull();
   });
 });
+function beforeAll(arg0: () => Promise<void>) {
+  throw new Error('Function not implemented.');
+}
+
+function afterAll(arg0: () => Promise<void>) {
+  throw new Error('Function not implemented.');
+}
+
+function expect(status: number) {
+  throw new Error('Function not implemented.');
+}
+
