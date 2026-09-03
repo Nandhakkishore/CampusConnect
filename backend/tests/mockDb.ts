@@ -1,7 +1,7 @@
-// In-memory mock store for test execution and mock dev mode
 const createMockFn = (impl?: any) => {
-  if (typeof jest !== 'undefined' && jest.fn) {
-    return jest.fn(impl);
+  const globalObj = globalThis as any;
+  if (typeof globalObj.jest !== 'undefined' && globalObj.jest.fn) {
+    return globalObj.jest.fn(impl);
   }
   return impl || (() => Promise.resolve(null));
 };
