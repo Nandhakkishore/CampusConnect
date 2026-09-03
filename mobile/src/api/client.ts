@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
-// In Expo / local dev, default to localhost:5000 or custom IP
-export const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api';
+export const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://campusconnect-7xaa.onrender.com/api';
 
 const apiClient = axios.create({
   baseURL: API_URL,
