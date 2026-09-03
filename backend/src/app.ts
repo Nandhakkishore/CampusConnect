@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes';
+import profileRoutes from './routes/profileRoutes';
+import projectRoutes from './routes/projectRoutes';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -15,6 +17,8 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/profiles', profileRoutes);
+app.use('/api/projects', projectRoutes);
 
 // Error Middleware
 app.use(errorHandler);
