@@ -85,8 +85,8 @@ export const getProjects = async (req: Request, res: Response, next: NextFunctio
       }),
     ]);
 
-    const formattedProjects = projects.map((p) => {
-      const { upvotes, ...rest } = p as any;
+    const formattedProjects = projects.map((p: any) => {
+      const { upvotes, ...rest } = p;
       return {
         ...rest,
         hasUpvoted: Array.isArray(upvotes) && upvotes.length > 0,
