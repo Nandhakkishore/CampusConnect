@@ -1,0 +1,281 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(uuid())
+  email        String         @unique
+  passwordHash String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  profile                  Profile?
+  refreshTokens            RefreshToken[]
+  ownedProjects            Project[]                 @relation("OwnerProjects")
+  upvotes                  ProjectUpvote[]
+  comments                 ProjectComment[]
+  applications             Application[]             @relation("UserApplications")
+  teamMemberships          TeamMember[]
+  conversationParticipants ConversationParticipant[]
+  sentMessages             Message[]                 @relation("UserMessages")
+  createdGigs              Gig[]                     @relation("CreatedGigs")
+  gigApplications          GigApplication[]          @relation("ApplicantGigs")
+  notifications            Notification[]
+
+  @@map("users")
+}
+
+model Profile {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName     String
+  avatarUrl    String?
+  bio          String?
+  branch       String?
+  gradYear     Int?
+  githubUrl    String?
+  portfolioUrl String?
+  skills       String[] @default([])
+  lookingFor   String[] @default([])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("refresh_tokens")
+}
+
+enum ProjectStatus {
+  IDEA
+  IN_PROGRESS
+  RECRUITING
+  COMPLETED
+}
+
+model Project {
+  id            String          @id @default(uuid())
+  ownerId       String
+  owner         User            @relation("OwnerProjects", fields: [ownerId], references: [id], onDelete: Cascade)
+  title         String
+  summary       String
+  description   String
+  branch        String?
+  techStack     String[]        @default([])
+  status        ProjectStatus   @default(RECRUITING)
+  repositoryUrl String?
+  demoUrl       String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  upvotes      ProjectUpvote[]
+  comments     ProjectComment[]
+  applications Application[]
+  team         Team?
+
+  @@index([ownerId])
+  @@map("projects")
+}
+
+model ProjectUpvote {
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([projectId, userId])
+  @@map("project_upvotes")
+}
+
+model ProjectComment {
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@map("project_comments")
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model Application {
+  id          String            @id @default(uuid())
+  projectId   String
+  project     Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId      String
+  applicant   User              @relation("UserApplications", fields: [userId], references: [id], onDelete: Cascade)
+  note        String
+  contactLink String?
+  status      ApplicationStatus @default(PENDING)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([projectId, userId])
+  @@map("applications")
+}
+
+model Team {
+  id          String       @id @default(uuid())
+  projectId   String       @unique
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  members      TeamMember[]
+  conversation ChatConversation?
+
+  @@map("teams")
+}
+
+enum TeamRole {
+  OWNER
+  MEMBER
+}
+
+model TeamMember {
+  id       String   @id @default(uuid())
+  teamId   String
+  team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role     TeamRole @default(MEMBER)
+  joinedAt DateTime @default(now())
+
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+enum ConversationType {
+  DIRECT
+  TEAM
+}
+
+model ChatConversation {
+  id        String           @id @default(uuid())
+  type      ConversationType @default(DIRECT)
+  teamId    String?          @unique
+  team      Team?            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  name      String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@map("chat_conversations")
+}
+
+model ConversationParticipant {
+  id             String           @id @default(uuid())
+  conversationId String
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt     DateTime?
+  joinedAt       DateTime         @default(now())
+
+  @@unique([conversationId, userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String           @id @default(uuid())
+  conversationId String
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String?
+  sender         User?            @relation("UserMessages", fields: [senderId], references: [id], onDelete: SetNull)
+  content        String
+  isSystem       Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+enum GigStatus {
+  OPEN
+  CLOSED
+}
+
+model Gig {
+  id             String   @id @default(uuid())
+  creatorId      String
+  creator        User     @relation("CreatedGigs", fields: [creatorId], references: [id], onDelete: Cascade)
+  title          String
+  description    String
+  category       String
+  stipend        String?
+  estimatedTime  String?
+  skillsRequired String[] @default([])
+  status         GigStatus @default(OPEN)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  applications GigApplication[]
+
+  @@index([creatorId])
+  @@map("gigs")
+}
+
+model GigApplication {
+  id            String            @id @default(uuid())
+  gigId         String
+  gig           Gig               @relation(fields: [gigId], references: [id], onDelete: Cascade)
+  applicantId   String
+  applicant     User              @relation("ApplicantGigs", fields: [applicantId], references: [id], onDelete: Cascade)
+  pitchNote     String
+  portfolioLink String?
+  status        ApplicationStatus @default(PENDING)
+  createdAt     DateTime          @default(now())
+
+  @@unique([gigId, applicantId])
+  @@map("gig_applications")
+}
+
+enum NotificationType {
+  MESSAGE
+  APPLICATION_STATUS
+  NEW_MATCH
+  SYSTEM
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      NotificationType @default(SYSTEM)
+  payload   Json?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
