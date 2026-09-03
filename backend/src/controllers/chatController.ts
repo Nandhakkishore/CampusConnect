@@ -12,7 +12,7 @@ export const getConversations = async (req: AuthenticatedRequest, res: Response,
       select: { conversationId: true },
     });
 
-    const conversationIds = participants.map((p) => p.conversationId);
+    const conversationIds = participants.map((p: any) => p.conversationId);
 
     const conversations = await prisma.chatConversation.findMany({
       where: {
@@ -49,7 +49,7 @@ export const getConversations = async (req: AuthenticatedRequest, res: Response,
       },
     });
 
-    const formatted = conversations.map((conv) => {
+    const formatted = conversations.map((conv: any) => {
       const { messages, ...rest } = conv;
       return {
         ...rest,

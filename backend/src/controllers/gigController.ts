@@ -62,8 +62,8 @@ export const getGigs = async (req: Request, res: Response, next: NextFunction) =
       },
     });
 
-    const formatted = gigs.map((g) => {
-      const { applications, ...rest } = g as any;
+    const formatted = gigs.map((g: any) => {
+      const { applications, ...rest } = g;
       return {
         ...rest,
         hasApplied: Array.isArray(applications) && applications.length > 0,
