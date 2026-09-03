@@ -104,38 +104,28 @@ export const LoginScreen = ({ navigation }: any) => {
     }
   };
 
-  const handleStandardGoogleOAuth = async () => {
+  const [googleModalVisible, setGoogleModalVisible] = useState(false);
+  const [googleEmailInput, setGoogleEmailInput] = useState('');
+
+  const [githubModalVisible, setGithubModalVisible] = useState(false);
+  const [githubUsernameInput, setGithubUsernameInput] = useState('');
+
+  const handleDirectGoogleLogin = async (selectedEmail?: string) => {
+    const targetEmail = (selectedEmail || googleEmailInput.trim() || email.trim() || 'student@campus.edu').toLowerCase();
+    setGoogleModalVisible(false);
     setErrorMsg('');
+
     try {
       setGoogleLoading(true);
-
-      // Force Google Account Chooser screen (lets user select or switch Google accounts)
-      const googleAuthUrl = 'https://accounts.google.com/AccountChooser?prompt=select_account';
-      if (Platform.OS === 'web' && typeof window !== 'undefined') {
-        window.open(googleAuthUrl, '_blank');
-      } else {
-        await Linking.openURL(googleAuthUrl);
-      }
-
-      let userGoogleEmail = '';
-      if (Platform.OS === 'web' && typeof window !== 'undefined' && window.prompt) {
-        const input = window.prompt('Google Account Chooser opened!\n\nEnter or select your Google email address to log in:', email || 'student@campus.edu');
-        if (input) userGoogleEmail = input.trim();
-      }
-
-      if (!userGoogleEmail) {
-        userGoogleEmail = email || `student_${Math.floor(Math.random() * 1000)}@campus.edu`;
-      }
-
       const res = await authApi.googleLogin({
-        email: userGoogleEmail.toLowerCase(),
-        fullName: userGoogleEmail.split('@')[0].replace('.', ' '),
+        email: targetEmail,
+        fullName: targetEmail.split('@')[0].replace('.', ' '),
       });
 
       if (res && res.success) {
         setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
       } else {
-        showAlert('Google Auth', res?.message || 'Google authentication complete.');
+        showAlert('Google Auth', res?.message || 'Google authentication failed.');
       }
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Google Sign-In completed';
@@ -145,37 +135,21 @@ export const LoginScreen = ({ navigation }: any) => {
     }
   };
 
-  const handleStandardGithubOAuth = async (presetUsername?: string) => {
+  const handleDirectGithubLogin = async (selectedUsername?: string) => {
+    const targetUsername = selectedUsername || githubUsernameInput.trim() || 'Nandhakkishore';
+    setGithubModalVisible(false);
     setErrorMsg('');
+
     try {
       setGithubLoading(true);
-
-      // Force GitHub Account Switcher screen
-      const githubAuthUrl = 'https://github.com/login?prompt=consent';
-      if (Platform.OS === 'web' && typeof window !== 'undefined') {
-        window.open(githubAuthUrl, '_blank');
-      } else {
-        await Linking.openURL(githubAuthUrl);
-      }
-
-      let userGithubName = presetUsername || '';
-      if (!userGithubName && Platform.OS === 'web' && typeof window !== 'undefined' && window.prompt) {
-        const input = window.prompt('GitHub Account Switcher opened!\n\nEnter or select your GitHub username to log in:', 'Nandhakkishore');
-        if (input) userGithubName = input.trim();
-      }
-
-      if (!userGithubName) {
-        userGithubName = 'alexchen-dev';
-      }
-
       const res = await authApi.githubLogin({
-        username: userGithubName,
+        username: targetUsername,
       });
 
       if (res && res.success) {
         setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
       } else {
-        showAlert('GitHub Auth', res?.message || 'GitHub authentication complete.');
+        showAlert('GitHub Auth', res?.message || 'GitHub authentication failed.');
       }
     } catch (err: any) {
       const msg = err.response?.data?.message || 'GitHub Sign-In completed';
@@ -183,6 +157,14 @@ export const LoginScreen = ({ navigation }: any) => {
     } finally {
       setGithubLoading(false);
     }
+  };
+
+  const handleStandardGoogleOAuth = async () => {
+    setGoogleModalVisible(true);
+  };
+
+  const handleStandardGithubOAuth = async () => {
+    setGithubModalVisible(true);
   };
 
   return (
@@ -394,6 +376,125 @@ export const LoginScreen = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* Google Account Switcher Modal */}
+        {googleModalVisible && (
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>🌐 Google Account Switcher</Text>
+              <Text style={styles.modalSubtitle}>Select or enter the Google account to sign in as:</Text>
+
+              <View style={styles.chipRow}>
+                <TouchableOpacity
+                  style={styles.accountChip}
+                  onPress={() => handleDirectGoogleLogin('nandhakkishore@gmail.com')}
+                >
+                  <Text style={styles.accountChipText}>👤 Nandha Kishore (nandhakkishore@gmail.com)</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.accountChip}
+                  onPress={() => handleDirectGoogleLogin('maya.patel@campus.edu')}
+                >
+                  <Text style={styles.accountChipText}>👤 Maya Patel (maya.patel@campus.edu)</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.accountChip}
+                  onPress={() => handleDirectGoogleLogin('alex.chen@campus.edu')}
+                >
+                  <Text style={styles.accountChipText}>👤 Alex Chen (alex.chen@campus.edu)</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Input
+                label="Or Enter Custom Google Email"
+                placeholder="e.g. yourname@gmail.com or @campus.edu"
+                value={googleEmailInput}
+                onChangeText={setGoogleEmailInput}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+
+              <View style={styles.modalActions}>
+                <Button
+                  title="Cancel"
+                  variant="outline"
+                  onPress={() => setGoogleModalVisible(false)}
+                  style={{ flex: 1, marginRight: 8 }}
+                />
+                <Button
+                  title="Sign In with Google"
+                  onPress={() => handleDirectGoogleLogin()}
+                  style={{ flex: 1.5, marginLeft: 8 }}
+                />
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* GitHub Account Switcher Modal */}
+        {githubModalVisible && (
+          <View style={styles.modalOverlay}>
+            <View style={styles.githubAuthCard}>
+              <View style={styles.githubHeaderRow}>
+                <Text style={{ fontSize: 32 }}>🐙</Text>
+                <Text style={{ fontSize: 20, color: '#8b949e', marginHorizontal: 12 }}>➔</Text>
+                <Text style={{ fontSize: 28 }}>🎓</Text>
+              </View>
+
+              <Text style={styles.githubModalTitle}>GitHub Account Switcher</Text>
+              <Text style={styles.githubModalSubtitle}>
+                Select or enter the GitHub profile to authorize and log in:
+              </Text>
+
+              <View style={{ marginBottom: 12 }}>
+                <TouchableOpacity
+                  style={styles.githubChip}
+                  onPress={() => handleDirectGithubLogin('Nandhakkishore')}
+                >
+                  <Text style={styles.githubChipText}>👤 @Nandhakkishore (GitHub)</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.githubChip, { marginTop: 6 }]}
+                  onPress={() => handleDirectGithubLogin('alexchen-dev')}
+                >
+                  <Text style={styles.githubChipText}>👤 @alexchen-dev (GitHub)</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.githubChip, { marginTop: 6 }]}
+                  onPress={() => handleDirectGithubLogin('mayapatel-ai')}
+                >
+                  <Text style={styles.githubChipText}>👤 @mayapatel-ai (GitHub)</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Input
+                label="Or Enter Custom GitHub Username"
+                placeholder="e.g. Nandhakkishore, alexchen-dev"
+                value={githubUsernameInput}
+                onChangeText={setGithubUsernameInput}
+                autoCapitalize="none"
+              />
+
+              <View style={styles.githubActions}>
+                <TouchableOpacity
+                  style={styles.githubCancelBtn}
+                  onPress={() => setGithubModalVisible(false)}
+                >
+                  <Text style={styles.githubCancelText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.githubSubmitBtn}
+                  onPress={() => handleDirectGithubLogin()}
+                >
+                  <Text style={styles.githubSubmitText}>Authorize GitHub</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
