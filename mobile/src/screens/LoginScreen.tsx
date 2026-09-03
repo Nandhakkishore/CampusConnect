@@ -8,8 +8,19 @@ import { useAuthStore } from '../store/authStore';
 import { showAlert } from '../utils/alert';
 
 export const LoginScreen = ({ navigation }: any) => {
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+  
+  // Login fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  
+  // Register fields (Fresh Mail / Account creation)
+  const [fullName, setFullName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [branch, setBranch] = useState('Computer Science');
+  const [gradYear, setGradYear] = useState('2026');
+
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [githubLoading, setGithubLoading] = useState(false);
@@ -51,12 +62,50 @@ export const LoginScreen = ({ navigation }: any) => {
     }
   };
 
+  const handleRegister = async () => {
+    setErrorMsg('');
+    if (!fullName || !regEmail || !regPassword) {
+      const err = 'Please fill in full name, fresh email, and password';
+      setErrorMsg(err);
+      showAlert('Error', err);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await authApi.register({
+        fullName,
+        email: regEmail,
+        password: regPassword,
+        branch,
+        gradYear: parseInt(gradYear, 10) || 2026,
+      });
+      if (res && res.success) {
+        setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
+      } else {
+        const msg = res?.message || 'Registration failed.';
+        setErrorMsg(msg);
+        showAlert('Registration Error', msg);
+      }
+    } catch (err: any) {
+      let msg = 'Registration failed. Email may already be registered.';
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        msg = 'Server connection timed out (cold start). Please try again in a few seconds.';
+      } else if (err.response?.data?.message) {
+        msg = err.response.data.message;
+      }
+      setErrorMsg(msg);
+      showAlert('Registration Error', msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleStandardGoogleOAuth = async () => {
     setErrorMsg('');
     try {
       setGoogleLoading(true);
 
-      // Open standard accounts.google.com sign-in page
       const googleAuthUrl = 'https://accounts.google.com/signin';
       if (Platform.OS === 'web' && typeof window !== 'undefined') {
         window.open(googleAuthUrl, '_blank');
@@ -64,7 +113,6 @@ export const LoginScreen = ({ navigation }: any) => {
         await Linking.openURL(googleAuthUrl);
       }
 
-      // Prompt user for their Google email or use entered email
       let userGoogleEmail = '';
       if (Platform.OS === 'web' && typeof window !== 'undefined' && window.prompt) {
         const input = window.prompt('Enter your Google email address after sign in:', email || 'student@campus.edu');
@@ -98,7 +146,6 @@ export const LoginScreen = ({ navigation }: any) => {
     try {
       setGithubLoading(true);
 
-      // Open standard github.com login page
       const githubAuthUrl = 'https://github.com/login';
       if (Platform.OS === 'web' && typeof window !== 'undefined') {
         window.open(githubAuthUrl, '_blank');
@@ -106,7 +153,6 @@ export const LoginScreen = ({ navigation }: any) => {
         await Linking.openURL(githubAuthUrl);
       }
 
-      // Prompt user for their GitHub username
       let userGithubName = '';
       if (Platform.OS === 'web' && typeof window !== 'undefined' && window.prompt) {
         const input = window.prompt('Enter your GitHub username after authorization:', 'Nandhakkishore');
@@ -146,7 +192,32 @@ export const LoginScreen = ({ navigation }: any) => {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.title}>Welcome Back</Text>
+          {/* Mode Switcher Tabs */}
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={[styles.tabButton, mode === 'login' && styles.tabButtonActive]}
+              onPress={() => {
+                setMode('login');
+                setErrorMsg('');
+              }}
+            >
+              <Text style={[styles.tabText, mode === 'login' && styles.tabTextActive]}>
+                🔑 Sign In
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.tabButton, mode === 'register' && styles.tabButtonActive]}
+              onPress={() => {
+                setMode('register');
+                setErrorMsg('');
+              }}
+            >
+              <Text style={[styles.tabText, mode === 'register' && styles.tabTextActive]}>
+                ✨ Create Account
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           {!!errorMsg && (
             <View style={styles.errorBox}>
@@ -154,52 +225,151 @@ export const LoginScreen = ({ navigation }: any) => {
             </View>
           )}
 
-          <Input
-            label="Campus Email"
-            placeholder="student@campus.edu"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
+          {mode === 'login' ? (
+            <>
+              <Text style={styles.title}>Welcome Back</Text>
 
-          <Input
-            label="Password"
-            placeholder="••••••••"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
+              {/* Account Switcher Bar */}
+              <View style={styles.accountSwitcherBox}>
+                <Text style={styles.accountSwitcherTitle}>Switch / Quick Account:</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
+                  <TouchableOpacity
+                    style={styles.accountChip}
+                    onPress={() => {
+                      setEmail('alex.chen@campus.edu');
+                      setPassword('password123');
+                    }}
+                  >
+                    <Text style={styles.accountChipText}>Alex Chen (alex.chen@campus.edu)</Text>
+                  </TouchableOpacity>
 
-          <Button
-            title="Sign In"
-            onPress={handleLogin}
-            loading={loading}
-            style={styles.submitBtn}
-          />
+                  <TouchableOpacity
+                    style={styles.accountChip}
+                    onPress={() => {
+                      setEmail('maya.patel@campus.edu');
+                      setPassword('password123');
+                    }}
+                  >
+                    <Text style={styles.accountChipText}>Maya Patel (maya.patel@campus.edu)</Text>
+                  </TouchableOpacity>
 
-          <Button
-            title="🌐 Continue with Google"
-            variant="secondary"
-            onPress={handleStandardGoogleOAuth}
-            loading={googleLoading}
-            style={styles.googleBtn}
-          />
+                  <TouchableOpacity
+                    style={styles.accountChipNew}
+                    onPress={() => {
+                      setMode('register');
+                    }}
+                  >
+                    <Text style={styles.accountChipNewText}>+ Create Fresh Mail ID</Text>
+                  </TouchableOpacity>
+                </ScrollView>
+              </View>
 
-          <Button
-            title="🐙 Continue with GitHub"
-            variant="outline"
-            onPress={handleStandardGithubOAuth}
-            loading={githubLoading}
-            style={styles.githubBtn}
-          />
+              <Input
+                label="Campus Email"
+                placeholder="student@campus.edu"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+
+              <Input
+                label="Password"
+                placeholder="••••••••"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
+
+              <Button
+                title="Sign In"
+                onPress={handleLogin}
+                loading={loading}
+                style={styles.submitBtn}
+              />
+
+              <Button
+                title="🌐 Continue with Google"
+                variant="secondary"
+                onPress={handleStandardGoogleOAuth}
+                loading={googleLoading}
+                style={styles.googleBtn}
+              />
+
+              <Button
+                title="🐙 Continue with GitHub"
+                variant="outline"
+                onPress={handleStandardGithubOAuth}
+                loading={githubLoading}
+                style={styles.githubBtn}
+              />
+            </>
+          ) : (
+            <>
+              <Text style={styles.title}>Create Fresh Account</Text>
+              <Text style={styles.subtitle}>Register your new student profile with a fresh mail ID</Text>
+
+              <Input
+                label="Full Name *"
+                placeholder="Nandha Dev"
+                value={fullName}
+                onChangeText={setFullName}
+              />
+
+              <Input
+                label="Fresh Campus Email ID *"
+                placeholder="yourname@campus.edu or @gmail.com"
+                value={regEmail}
+                onChangeText={setRegEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+
+              <Input
+                label="Password *"
+                placeholder="At least 6 characters"
+                value={regPassword}
+                onChangeText={setRegPassword}
+                secureTextEntry
+              />
+
+              <Input
+                label="Branch / Major"
+                placeholder="e.g. Computer Science, AI, Mechanical"
+                value={branch}
+                onChangeText={setBranch}
+              />
+
+              <Input
+                label="Graduation Year"
+                placeholder="2026"
+                value={gradYear}
+                onChangeText={setGradYear}
+                keyboardType="number-pad"
+              />
+
+              <Button
+                title="Register Fresh Account"
+                onPress={handleRegister}
+                loading={loading}
+                style={styles.submitBtn}
+              />
+            </>
+          )}
 
           <TouchableOpacity
-            onPress={() => navigation.navigate('Register')}
+            onPress={() => {
+              setMode(mode === 'login' ? 'register' : 'login');
+              setErrorMsg('');
+            }}
             style={styles.linkContainer}
           >
             <Text style={styles.linkText}>
-              Don't have an account? <Text style={styles.linkHighlight}>Sign Up</Text>
+              {mode === 'login' ? (
+                <>Need a fresh account? <Text style={styles.linkHighlight}>Create Fresh Mail ID / Sign Up</Text></>
+              ) : (
+                <>Already have an account? <Text style={styles.linkHighlight}>Switch to Sign In</Text></>
+              )}
             </Text>
           </TouchableOpacity>
         </View>
@@ -240,6 +410,70 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 16,
     padding: 24,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: colors.surfaceLight,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 20,
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  tabButtonActive: {
+    backgroundColor: colors.primary,
+  },
+  tabText: {
+    color: colors.textMuted,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  tabTextActive: {
+    color: '#ffffff',
+    fontWeight: '700',
+  },
+  subtitle: {
+    fontSize: 13,
+    color: colors.textMuted,
+    marginTop: -12,
+    marginBottom: 18,
+  },
+  accountSwitcherBox: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 16,
+  },
+  accountSwitcherTitle: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  chipScroll: {
+    flexDirection: 'row',
+  },
+  accountChipNew: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderColor: '#10B981',
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+  },
+  accountChipNewText: {
+    color: '#10B981',
+    fontSize: 12,
+    fontWeight: '700',
   },
   title: {
     fontSize: 22,
