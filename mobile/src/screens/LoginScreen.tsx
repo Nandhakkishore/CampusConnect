@@ -142,7 +142,7 @@ export const LoginScreen = ({ navigation }: any) => {
     }
   };
 
-  const handleStandardGithubOAuth = async () => {
+  const handleStandardGithubOAuth = async (presetUsername?: string) => {
     setErrorMsg('');
     try {
       setGithubLoading(true);
@@ -155,9 +155,9 @@ export const LoginScreen = ({ navigation }: any) => {
         await Linking.openURL(githubAuthUrl);
       }
 
-      let userGithubName = '';
-      if (Platform.OS === 'web' && typeof window !== 'undefined' && window.prompt) {
-        const input = window.prompt('GitHub Account Switcher opened!\n\nEnter your GitHub username after authorization:', 'Nandhakkishore');
+      let userGithubName = presetUsername || '';
+      if (!userGithubName && Platform.OS === 'web' && typeof window !== 'undefined' && window.prompt) {
+        const input = window.prompt('GitHub Account Switcher opened!\n\nEnter or select your GitHub username to log in:', 'Nandhakkishore');
         if (input) userGithubName = input.trim();
       }
 
@@ -253,6 +253,20 @@ export const LoginScreen = ({ navigation }: any) => {
                     }}
                   >
                     <Text style={styles.accountChipText}>Maya Patel (maya.patel@campus.edu)</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.accountChip}
+                    onPress={() => handleStandardGithubOAuth('Nandhakkishore')}
+                  >
+                    <Text style={styles.accountChipText}>🐙 @Nandhakkishore (GitHub)</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.accountChip}
+                    onPress={() => handleStandardGithubOAuth('alexchen-dev')}
+                  >
+                    <Text style={styles.accountChipText}>🐙 @alexchen-dev (GitHub)</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
