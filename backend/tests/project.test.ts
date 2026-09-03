@@ -1,6 +1,7 @@
 import request from 'supertest';
 import app from '../src/app';
 import prisma from '../src/config/db';
+import { resetMockStore } from './mockDb';
 
 describe('Project Endpoints Integration Tests', () => {
   let token: string;
@@ -8,6 +9,7 @@ describe('Project Endpoints Integration Tests', () => {
   let projectId: string;
 
   beforeAll(async () => {
+    resetMockStore();
     const email = `project_tester_${Date.now()}@campus.edu`;
     const res = await request(app).post('/api/auth/register').send({
       email,

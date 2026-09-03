@@ -155,13 +155,18 @@ export const mockPrisma = {
   },
   application: {
     findUnique: jest.fn().mockImplementation(async ({ where }: any) => {
+      let app = null;
       if (where.projectId_userId) {
-        return mockStore.applications.find(
+        app = mockStore.applications.find(
           (a) => a.projectId === where.projectId_userId.projectId && a.userId === where.projectId_userId.userId
-        ) || null;
+        );
+      } else if (where.id) {
+        app = mockStore.applications.find((a) => a.id === where.id);
       }
-      if (where.id) {
-        return mockStore.applications.find((a) => a.id === where.id) || null;
+      if (app) {
+        const project = mockStore.projects.find((p) => p.id === app.projectId);
+        const applicant = mockStore.users.find((u) => u.id === app.userId);
+        return { ...app, project, applicant };
       }
       return null;
     }),
@@ -171,7 +176,8 @@ export const mockPrisma = {
     create: jest.fn().mockImplementation(async ({ data }: any) => {
       const id = `app_${Date.now()}`;
       const applicant = mockStore.users.find((u) => u.id === data.userId);
-      const application = { id, ...data, applicant, createdAt: new Date() };
+      const project = mockStore.projects.find((p) => p.id === data.projectId);
+      const application = { id, ...data, applicant, project, createdAt: new Date() };
       mockStore.applications.push(application);
       return application;
     }),

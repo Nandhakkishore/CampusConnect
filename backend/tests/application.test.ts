@@ -1,6 +1,7 @@
 import request from 'supertest';
 import app from '../src/app';
 import prisma from '../src/config/db';
+import { resetMockStore } from './mockDb';
 
 describe('Team Formation & Application Integration Tests', () => {
   let ownerToken: string;
@@ -10,6 +11,7 @@ describe('Team Formation & Application Integration Tests', () => {
   let applicationId: string;
 
   beforeAll(async () => {
+    resetMockStore();
     // Register owner
     const ownerRes = await request(app).post('/api/auth/register').send({
       email: `owner_${Date.now()}@campus.edu`,
