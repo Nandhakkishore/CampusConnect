@@ -106,7 +106,8 @@ export const LoginScreen = ({ navigation }: any) => {
     try {
       setGoogleLoading(true);
 
-      const googleAuthUrl = 'https://accounts.google.com/signin';
+      // Force Google Account Chooser screen (lets user select or switch Google accounts)
+      const googleAuthUrl = 'https://accounts.google.com/AccountChooser?prompt=select_account';
       if (Platform.OS === 'web' && typeof window !== 'undefined') {
         window.open(googleAuthUrl, '_blank');
       } else {
@@ -115,7 +116,7 @@ export const LoginScreen = ({ navigation }: any) => {
 
       let userGoogleEmail = '';
       if (Platform.OS === 'web' && typeof window !== 'undefined' && window.prompt) {
-        const input = window.prompt('Enter your Google email address after sign in:', email || 'student@campus.edu');
+        const input = window.prompt('Google Account Chooser opened!\n\nEnter or select your Google email address to log in:', email || 'student@campus.edu');
         if (input) userGoogleEmail = input.trim();
       }
 
@@ -146,7 +147,8 @@ export const LoginScreen = ({ navigation }: any) => {
     try {
       setGithubLoading(true);
 
-      const githubAuthUrl = 'https://github.com/login';
+      // Force GitHub Account Switcher screen
+      const githubAuthUrl = 'https://github.com/login?prompt=consent';
       if (Platform.OS === 'web' && typeof window !== 'undefined') {
         window.open(githubAuthUrl, '_blank');
       } else {
@@ -155,7 +157,7 @@ export const LoginScreen = ({ navigation }: any) => {
 
       let userGithubName = '';
       if (Platform.OS === 'web' && typeof window !== 'undefined' && window.prompt) {
-        const input = window.prompt('Enter your GitHub username after authorization:', 'Nandhakkishore');
+        const input = window.prompt('GitHub Account Switcher opened!\n\nEnter your GitHub username after authorization:', 'Nandhakkishore');
         if (input) userGithubName = input.trim();
       }
 
