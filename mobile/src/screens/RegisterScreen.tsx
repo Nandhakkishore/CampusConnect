@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
 import { colors } from '../theme/colors';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { authApi } from '../api/authApi';
 import { useAuthStore } from '../store/authStore';
+import { showAlert } from '../utils/alert';
 
 export const RegisterScreen = ({ navigation }: any) => {
   const [fullName, setFullName] = useState('');
@@ -13,11 +14,15 @@ export const RegisterScreen = ({ navigation }: any) => {
   const [branch, setBranch] = useState('Computer Science');
   const [gradYear, setGradYear] = useState('2026');
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const handleRegister = async () => {
+    setErrorMsg('');
     if (!fullName || !email || !password) {
-      Alert.alert('Error', 'Please fill in all required fields');
+      const err = 'Please fill in all required fields';
+      setErrorMsg(err);
+      showAlert('Error', err);
       return;
     }
 
@@ -34,8 +39,9 @@ export const RegisterScreen = ({ navigation }: any) => {
         setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
       }
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Registration failed. Try a different email.';
-      Alert.alert('Registration Error', msg);
+      const msg = err.response?.data?.message || 'Registration failed. Try a different email or password.';
+      setErrorMsg(msg);
+      showAlert('Registration Error', msg);
     } finally {
       setLoading(false);
     }
@@ -50,6 +56,12 @@ export const RegisterScreen = ({ navigation }: any) => {
         <View style={styles.card}>
           <Text style={styles.title}>Join CampusConnect</Text>
           <Text style={styles.subtitle}>Create your student profile and get connected</Text>
+
+          {!!errorMsg && (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>{errorMsg}</Text>
+            </View>
+          )}
 
           <Input
             label="Full Name *"
@@ -138,6 +150,20 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: 4,
     marginBottom: 20,
+  },
+  errorBox: {
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderColor: '#EF4444',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   submitBtn: {
     marginTop: 10,

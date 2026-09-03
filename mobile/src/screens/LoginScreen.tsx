@@ -1,20 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
 import { colors } from '../theme/colors';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { authApi } from '../api/authApi';
 import { useAuthStore } from '../store/authStore';
+import { showAlert } from '../utils/alert';
 
 export const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const handleLogin = async () => {
+    setErrorMsg('');
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in email and password');
+      const err = 'Please fill in email and password';
+      setErrorMsg(err);
+      showAlert('Error', err);
       return;
     }
 
@@ -26,7 +31,8 @@ export const LoginScreen = ({ navigation }: any) => {
       }
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Login failed. Please check credentials.';
-      Alert.alert('Login Error', msg);
+      setErrorMsg(msg);
+      showAlert('Login Error', msg);
     } finally {
       setLoading(false);
     }
@@ -45,6 +51,12 @@ export const LoginScreen = ({ navigation }: any) => {
 
         <View style={styles.card}>
           <Text style={styles.title}>Welcome Back</Text>
+
+          {!!errorMsg && (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>{errorMsg}</Text>
+            </View>
+          )}
 
           <Input
             label="Campus Email"
@@ -122,6 +134,20 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
     marginBottom: 20,
+  },
+  errorBox: {
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderColor: '#EF4444',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   submitBtn: {
     marginTop: 10,
