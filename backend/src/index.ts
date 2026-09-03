@@ -19,9 +19,12 @@ export const io = new Server(server, {
 
 setupSocketHandlers(io);
 
+import { ensureSeedData } from './utils/autoSeed';
+
 if (process.env.NODE_ENV !== 'test') {
-  server.listen(PORT, () => {
+  server.listen(PORT, async () => {
     console.log(`🚀 CampusConnect server running on port ${PORT}`);
+    await ensureSeedData();
   });
 }
 

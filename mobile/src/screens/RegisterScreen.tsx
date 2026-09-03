@@ -35,11 +35,22 @@ export const RegisterScreen = ({ navigation }: any) => {
         branch,
         gradYear: parseInt(gradYear, 10) || 2026,
       });
-      if (res.success) {
+      if (res && res.success) {
         setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
+      } else {
+        const msg = res?.message || 'Registration failed.';
+        setErrorMsg(msg);
+        showAlert('Registration Error', msg);
       }
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Registration failed. Try a different email or password.';
+      let msg = 'Registration failed. Try a different email or password.';
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        msg = 'Server connection timed out (cold start). Please try again in a few seconds.';
+      } else if (err.response?.data?.message) {
+        msg = err.response.data.message;
+      } else if (err.message === 'Network Error') {
+        msg = 'Network error. Please check your internet connection or server host.';
+      }
       setErrorMsg(msg);
       showAlert('Registration Error', msg);
     } finally {

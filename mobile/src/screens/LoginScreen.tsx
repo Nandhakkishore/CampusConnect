@@ -26,11 +26,22 @@ export const LoginScreen = ({ navigation }: any) => {
     try {
       setLoading(true);
       const res = await authApi.login({ email, password });
-      if (res.success) {
+      if (res && res.success) {
         setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
+      } else {
+        const msg = res?.message || 'Login failed. Invalid credentials.';
+        setErrorMsg(msg);
+        showAlert('Login Error', msg);
       }
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Login failed. Please check credentials.';
+      let msg = 'Login failed. Please check credentials.';
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        msg = 'Server connection timed out (cold start). Please try again in a few seconds.';
+      } else if (err.response?.data?.message) {
+        msg = err.response.data.message;
+      } else if (err.message === 'Network Error') {
+        msg = 'Network error. Please check your internet connection or server host.';
+      }
       setErrorMsg(msg);
       showAlert('Login Error', msg);
     } finally {

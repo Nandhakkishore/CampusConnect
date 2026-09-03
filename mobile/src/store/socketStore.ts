@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore } from './authStore';
 
-export const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL || 'http://localhost:5000';
+export const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL || 'https://campusconnect-7xaa.onrender.com';
 
 interface SocketState {
   socket: Socket | null;
