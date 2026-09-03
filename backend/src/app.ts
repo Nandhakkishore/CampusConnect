@@ -14,6 +14,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Root Welcome Route
+app.get('/', (req, res) => {
+  res.json({
+    name: 'CampusConnect Backend API',
+    status: 'online',
+    health: '/health',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Base health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
