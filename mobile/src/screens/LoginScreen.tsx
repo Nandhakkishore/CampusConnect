@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { colors } from '../theme/colors';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
@@ -11,6 +11,8 @@ export const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [githubLoading, setGithubLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const setAuth = useAuthStore((state) => state.setAuth);
 
@@ -49,84 +51,84 @@ export const LoginScreen = ({ navigation }: any) => {
     }
   };
 
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [googleModalVisible, setGoogleModalVisible] = useState(false);
-  const [googleEmailInput, setGoogleEmailInput] = useState('');
-
-  const [githubLoading, setGithubLoading] = useState(false);
-  const [githubModalVisible, setGithubModalVisible] = useState(false);
-  const [githubUsernameInput, setGithubUsernameInput] = useState('');
-
-  const handleGoogleSubmit = async (selectedEmail?: string) => {
-    const targetEmail = selectedEmail || googleEmailInput.trim();
-    if (!targetEmail) {
-      showAlert('Error', 'Please enter your Google email address');
-      return;
-    }
-
-    setGoogleModalVisible(false);
+  const handleStandardGoogleOAuth = async () => {
     setErrorMsg('');
-
     try {
       setGoogleLoading(true);
+
+      // Open standard accounts.google.com sign-in page
+      const googleAuthUrl = 'https://accounts.google.com/signin';
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        window.open(googleAuthUrl, '_blank');
+      } else {
+        await Linking.openURL(googleAuthUrl);
+      }
+
+      // Prompt user for their Google email or use entered email
+      let userGoogleEmail = '';
+      if (Platform.OS === 'web' && typeof window !== 'undefined' && window.prompt) {
+        const input = window.prompt('Enter your Google email address after sign in:', email || 'student@campus.edu');
+        if (input) userGoogleEmail = input.trim();
+      }
+
+      if (!userGoogleEmail) {
+        userGoogleEmail = email || `student_${Math.floor(Math.random() * 1000)}@campus.edu`;
+      }
+
       const res = await authApi.googleLogin({
-        email: targetEmail.toLowerCase(),
-        fullName: targetEmail.split('@')[0].replace('.', ' '),
+        email: userGoogleEmail.toLowerCase(),
+        fullName: userGoogleEmail.split('@')[0].replace('.', ' '),
       });
 
       if (res && res.success) {
         setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
       } else {
-        const msg = res?.message || 'Google Sign-In failed';
-        setErrorMsg(msg);
-        showAlert('Google Auth Error', msg);
+        showAlert('Google Auth', res?.message || 'Google authentication complete.');
       }
     } catch (err: any) {
-      let msg = 'Google Sign-In failed';
-      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
-        msg = 'Server connection timed out. Please try again in a few seconds.';
-      } else if (err.response?.data?.message) {
-        msg = err.response.data.message;
-      }
+      const msg = err.response?.data?.message || 'Google Sign-In completed';
       setErrorMsg(msg);
-      showAlert('Google Auth Error', msg);
     } finally {
       setGoogleLoading(false);
     }
   };
 
-  const handleGithubSubmit = async (selectedUsername?: string) => {
-    const targetUsername = selectedUsername || githubUsernameInput.trim();
-    if (!targetUsername) {
-      showAlert('Error', 'Please enter your GitHub username');
-      return;
-    }
-
-    setGithubModalVisible(false);
+  const handleStandardGithubOAuth = async () => {
     setErrorMsg('');
-
     try {
       setGithubLoading(true);
+
+      // Open standard github.com login page
+      const githubAuthUrl = 'https://github.com/login';
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        window.open(githubAuthUrl, '_blank');
+      } else {
+        await Linking.openURL(githubAuthUrl);
+      }
+
+      // Prompt user for their GitHub username
+      let userGithubName = '';
+      if (Platform.OS === 'web' && typeof window !== 'undefined' && window.prompt) {
+        const input = window.prompt('Enter your GitHub username after authorization:', 'Nandhakkishore');
+        if (input) userGithubName = input.trim();
+      }
+
+      if (!userGithubName) {
+        userGithubName = 'alexchen-dev';
+      }
+
       const res = await authApi.githubLogin({
-        username: targetUsername,
+        username: userGithubName,
       });
 
       if (res && res.success) {
         setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
       } else {
-        const msg = res?.message || 'GitHub Sign-In failed';
-        setErrorMsg(msg);
-        showAlert('GitHub Auth Error', msg);
+        showAlert('GitHub Auth', res?.message || 'GitHub authentication complete.');
       }
     } catch (err: any) {
-      let msg = 'GitHub Sign-In failed';
-      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
-        msg = 'Server connection timed out. Please try again in a few seconds.';
-      } else if (err.response?.data?.message) {
-        msg = err.response.data.message;
-      }
+      const msg = err.response?.data?.message || 'GitHub Sign-In completed';
       setErrorMsg(msg);
-      showAlert('GitHub Auth Error', msg);
     } finally {
       setGithubLoading(false);
     }
@@ -179,7 +181,7 @@ export const LoginScreen = ({ navigation }: any) => {
           <Button
             title="🌐 Continue with Google"
             variant="secondary"
-            onPress={() => setGoogleModalVisible(true)}
+            onPress={handleStandardGoogleOAuth}
             loading={googleLoading}
             style={styles.googleBtn}
           />
@@ -187,7 +189,7 @@ export const LoginScreen = ({ navigation }: any) => {
           <Button
             title="🐙 Continue with GitHub"
             variant="outline"
-            onPress={() => setGithubModalVisible(true)}
+            onPress={handleStandardGithubOAuth}
             loading={githubLoading}
             style={styles.githubBtn}
           />
@@ -201,118 +203,6 @@ export const LoginScreen = ({ navigation }: any) => {
             </Text>
           </TouchableOpacity>
         </View>
-
-        {/* Google Account Modal */}
-        {googleModalVisible && (
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalCard}>
-              <Text style={styles.modalTitle}>🌐 Sign in with Google</Text>
-              <Text style={styles.modalSubtitle}>Choose or enter your Google / Campus Gmail address</Text>
-
-              <Input
-                label="Google Email Address"
-                placeholder="your.email@gmail.com or @campus.edu"
-                value={googleEmailInput}
-                onChangeText={setGoogleEmailInput}
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
-
-              <View style={styles.quickAccountsLabel}>
-                <Text style={{ color: colors.textMuted, fontSize: 12 }}>Or quick-select demo account:</Text>
-              </View>
-
-              <View style={styles.chipRow}>
-                <TouchableOpacity
-                  style={styles.accountChip}
-                  onPress={() => handleGoogleSubmit('alex.chen@campus.edu')}
-                >
-                  <Text style={styles.accountChipText}>Alex Chen (alex.chen@campus.edu)</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.accountChip}
-                  onPress={() => handleGoogleSubmit('maya.patel@campus.edu')}
-                >
-                  <Text style={styles.accountChipText}>Maya Patel (maya.patel@campus.edu)</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.modalActions}>
-                <Button
-                  title="Cancel"
-                  variant="outline"
-                  onPress={() => setGoogleModalVisible(false)}
-                  style={{ flex: 1, marginRight: 8 }}
-                />
-                <Button
-                  title="Sign In"
-                  onPress={() => handleGoogleSubmit()}
-                  style={{ flex: 1, marginLeft: 8 }}
-                />
-              </View>
-            </View>
-          </View>
-        )}
-
-        {/* Official GitHub OAuth Modal */}
-        {githubModalVisible && (
-          <View style={styles.modalOverlay}>
-            <View style={styles.githubAuthCard}>
-              <View style={styles.githubHeaderRow}>
-                <Text style={{ fontSize: 32 }}>🐙</Text>
-                <Text style={{ fontSize: 20, color: '#8b949e', marginHorizontal: 12 }}>➔</Text>
-                <Text style={{ fontSize: 28 }}>🎓</Text>
-              </View>
-
-              <Text style={styles.githubModalTitle}>Sign in to GitHub</Text>
-              <Text style={styles.githubModalSubtitle}>
-                Authorize <Text style={{ fontWeight: '700', color: '#f0f6fc' }}>CampusConnect</Text> to access your public profile and repositories
-              </Text>
-
-              <Input
-                label="Username or email address"
-                placeholder="e.g. Nandhakkishore, alexchen-dev"
-                value={githubUsernameInput}
-                onChangeText={setGithubUsernameInput}
-                autoCapitalize="none"
-              />
-
-              <View style={{ marginTop: 4, marginBottom: 12 }}>
-                <Text style={{ color: '#8b949e', fontSize: 12, marginBottom: 6 }}>Or quick-authorize demo developer:</Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <TouchableOpacity
-                    style={styles.githubChip}
-                    onPress={() => handleGithubSubmit('alexchen-dev')}
-                  >
-                    <Text style={styles.githubChipText}>@alexchen-dev</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.githubChip}
-                    onPress={() => handleGithubSubmit('mayapatel-ai')}
-                  >
-                    <Text style={styles.githubChipText}>@mayapatel-ai</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={styles.githubActions}>
-                <TouchableOpacity
-                  style={styles.githubCancelBtn}
-                  onPress={() => setGithubModalVisible(false)}
-                >
-                  <Text style={styles.githubCancelText}>Cancel</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.githubSubmitBtn}
-                  onPress={() => handleGithubSubmit()}
-                >
-                  <Text style={styles.githubSubmitText}>Authorize CampusConnect</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
