@@ -76,7 +76,7 @@ export const RegisterScreen = ({ navigation }: any) => {
 
           <Input
             label="Full Name *"
-            placeholder="Alex Dev"
+            placeholder="Nandha Dev"
             value={fullName}
             onChangeText={setFullName}
           />

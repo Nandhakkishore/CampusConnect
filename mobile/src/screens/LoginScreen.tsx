@@ -300,50 +300,6 @@ export const LoginScreen = ({ navigation }: any) => {
                 loading={loading}
                 style={styles.submitBtn}
               />
-
-              {/* Account Switcher Bar at bottom */}
-              <View style={styles.accountSwitcherBox}>
-                <Text style={styles.accountSwitcherTitle}>⚡ Instant Demo Switcher:</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
-                  <TouchableOpacity
-                    style={styles.accountChip}
-                    onPress={() => {
-                      setEmail('alex.chen@campus.edu');
-                      setPassword('password123');
-                      handleLoginWithCredentials('alex.chen@campus.edu', 'password123');
-                    }}
-                  >
-                    <Text style={styles.accountChipText}>Alex Chen (alex.chen@campus.edu)</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.accountChip}
-                    onPress={() => {
-                      setEmail('maya.patel@campus.edu');
-                      setPassword('password123');
-                      handleLoginWithCredentials('maya.patel@campus.edu', 'password123');
-                    }}
-                  >
-                    <Text style={styles.accountChipText}>Maya Patel (maya.patel@campus.edu)</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.accountChip}
-                    onPress={() => handleStandardGithubOAuth('Nandhakkishore')}
-                  >
-                    <Text style={styles.accountChipText}>🐙 @Nandhakkishore (GitHub)</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.accountChipNew}
-                    onPress={() => {
-                      setMode('register');
-                    }}
-                  >
-                    <Text style={styles.accountChipNewText}>+ Create Fresh Mail ID</Text>
-                  </TouchableOpacity>
-                </ScrollView>
-              </View>
             </>
           ) : (
             <>
@@ -429,20 +385,6 @@ export const LoginScreen = ({ navigation }: any) => {
                 >
                   <Text style={styles.accountChipText}>👤 Nandha Kishore (nandhakkishore@gmail.com)</Text>
                 </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.accountChip}
-                  onPress={() => handleDirectGoogleLogin('maya.patel@campus.edu')}
-                >
-                  <Text style={styles.accountChipText}>👤 Maya Patel (maya.patel@campus.edu)</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.accountChip}
-                  onPress={() => handleDirectGoogleLogin('alex.chen@campus.edu')}
-                >
-                  <Text style={styles.accountChipText}>👤 Alex Chen (alex.chen@campus.edu)</Text>
-                </TouchableOpacity>
               </View>
 
               <Input
@@ -493,23 +435,11 @@ export const LoginScreen = ({ navigation }: any) => {
                 >
                   <Text style={styles.githubChipText}>👤 @Nandhakkishore (GitHub)</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.githubChip, { marginTop: 6 }]}
-                  onPress={() => handleDirectGithubLogin('alexchen-dev')}
-                >
-                  <Text style={styles.githubChipText}>👤 @alexchen-dev (GitHub)</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.githubChip, { marginTop: 6 }]}
-                  onPress={() => handleDirectGithubLogin('mayapatel-ai')}
-                >
-                  <Text style={styles.githubChipText}>👤 @mayapatel-ai (GitHub)</Text>
-                </TouchableOpacity>
               </View>
 
               <Input
                 label="Or Enter Custom GitHub Username"
-                placeholder="e.g. Nandhakkishore, alexchen-dev"
+                placeholder="e.g. Nandhakkishore"
                 value={githubUsernameInput}
                 onChangeText={setGithubUsernameInput}
                 autoCapitalize="none"
@@ -651,37 +581,6 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: -12,
     marginBottom: 18,
-  },
-  accountSwitcherBox: {
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 16,
-  },
-  accountSwitcherTitle: {
-    color: colors.textMuted,
-    fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  chipScroll: {
-    flexDirection: 'row',
-  },
-  accountChipNew: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderColor: '#10B981',
-    borderWidth: 1,
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginRight: 8,
-  },
-  accountChipNewText: {
-    color: '#10B981',
-    fontSize: 12,
-    fontWeight: '700',
   },
   title: {
     fontSize: 22,
