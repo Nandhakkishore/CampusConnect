@@ -476,11 +476,14 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 24,
   },
   header: {
     alignItems: 'center',
     marginBottom: 24,
+    width: '100%',
+    maxWidth: 440,
   },
   logoBadge: {
     width: 56,
@@ -509,17 +512,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   card: {
+    width: '100%',
+    maxWidth: 440,
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: 1,
     borderRadius: 16,
-    padding: 24,
+    padding: 26,
     shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
     shadowRadius: 16,
     elevation: 2,
   },
+
   title: {
     fontSize: 20,
     fontWeight: '700',
