@@ -7,10 +7,10 @@ import {
   Platform,
   ScrollView,
   TouchableOpacity,
+  TextInput,
+  Image,
 } from 'react-native';
 import { colors } from '../theme/colors';
-import { Input } from '../components/Input';
-import { Button } from '../components/Button';
 import { authApi } from '../api/authApi';
 import { useAuthStore, DeviceAccount } from '../store/authStore';
 import { showAlert } from '../utils/alert';
@@ -19,12 +19,12 @@ export const RegisterScreen = ({ navigation }: any) => {
   // Steps: 'REGISTER' | '2FA'
   const [step, setStep] = useState<'REGISTER' | '2FA'>('REGISTER');
 
-  // Register fields
-  const [fullName, setFullName] = useState('');
+  // Register fields (Matches screenshot first name / surname / email / password)
+  const [firstName, setFirstName] = useState('');
+  const [surname, setSurname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [branch, setBranch] = useState('Computer Science');
-  const [gradYear, setGradYear] = useState('2026');
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   // 2FA state
   const [otpCode, setOtpCode] = useState('');
@@ -69,9 +69,10 @@ export const RegisterScreen = ({ navigation }: any) => {
   const handleRegister = async () => {
     setErrorMsg('');
     const trimmedEmail = email.trim().toLowerCase();
+    const fullName = `${firstName.trim()} ${surname.trim()}`.trim();
 
-    if (!fullName.trim() || !trimmedEmail || !password) {
-      const err = 'Please fill in full name, campus email, and password.';
+    if (!firstName.trim() || !trimmedEmail || !password) {
+      const err = 'Please fill in your name, email, and password.';
       setErrorMsg(err);
       showAlert('Missing Fields', err);
       return;
@@ -80,11 +81,11 @@ export const RegisterScreen = ({ navigation }: any) => {
     try {
       setLoading(true);
       const res = await authApi.register({
-        fullName: fullName.trim(),
+        fullName: fullName || firstName.trim(),
         email: trimmedEmail,
         password,
-        branch,
-        gradYear: parseInt(gradYear, 10) || 2026,
+        branch: 'Computer Science',
+        gradYear: 2026,
       });
 
       if (res && res.success) {
@@ -166,7 +167,6 @@ export const RegisterScreen = ({ navigation }: any) => {
       const targetEmail = pendingAuth?.user?.email || email;
       await authApi.verifyOtp(targetEmail, codeToVerify);
 
-      // Successfully verified 2FA: Log into app
       setAuth(
         pendingAuth.user,
         pendingAuth.tokens.accessToken,
@@ -207,143 +207,187 @@ export const RegisterScreen = ({ navigation }: any) => {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
+        {/* Main Title Outside Card (Exact match to 'Sign up for Koyeb') */}
+        <Text style={styles.mainTitle}>
+          {step === 'REGISTER' ? 'Sign up for CampusConnect' : 'Two-factor authentication'}
+        </Text>
+
+        {/* Card Container */}
         <View style={styles.card}>
           {step === 'REGISTER' ? (
             <>
-              <Text style={styles.title}>Join CampusConnect</Text>
-              <Text style={styles.subtitle}>Create your student profile and get connected</Text>
-
-              {/* Social Sign Up Options */}
-              <View style={styles.socialGroup}>
-                <TouchableOpacity
-                  style={styles.socialBtn}
-                  onPress={() => {
-                    setSocialModalType('google');
-                    setSocialInput('');
-                    setShowCustomInput(false);
-                    setErrorMsg('');
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.socialBtnText}>🌐 Sign Up with Google</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.socialBtn, styles.githubBtn]}
-                  onPress={() => {
-                    setSocialModalType('github');
-                    setSocialInput('');
-                    setShowCustomInput(false);
-                    setErrorMsg('');
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.socialBtnText, styles.githubBtnText]}>
-                    🐙 Sign Up with GitHub
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-
-              {/* Divider */}
-              <View style={styles.dividerRow}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or register with email</Text>
-                <View style={styles.dividerLine} />
-              </View>
-
               {!!errorMsg && (
                 <View style={styles.errorBox}>
                   <Text style={styles.errorText}>{errorMsg}</Text>
                 </View>
               )}
 
-              <Input
-                label="Full Name *"
-                placeholder="Nandha Dev"
-                value={fullName}
-                onChangeText={(text) => {
-                  setFullName(text);
-                  if (errorMsg) setErrorMsg('');
-                }}
-              />
+              {/* Row 1: Your first name | Your surname (Exact match to screenshot) */}
+              <View style={styles.rowTwoCols}>
+                <View style={[styles.inputWrapper, { flex: 1 }]}>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      focusedField === 'firstName' && styles.inputFocused,
+                    ]}
+                    placeholder="Your first name"
+                    placeholderTextColor="#9CA3AF"
+                    value={firstName}
+                    onChangeText={(text) => {
+                      setFirstName(text);
+                      if (errorMsg) setErrorMsg('');
+                    }}
+                    onFocus={() => setFocusedField('firstName')}
+                    onBlur={() => setFocusedField(null)}
+                  />
+                </View>
 
-              <Input
-                label="Campus Email *"
-                placeholder="student@campus.edu"
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  if (errorMsg) setErrorMsg('');
-                }}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                autoCorrect={false}
-              />
+                <View style={[styles.inputWrapper, { flex: 1 }]}>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      focusedField === 'surname' && styles.inputFocused,
+                    ]}
+                    placeholder="Your surname"
+                    placeholderTextColor="#9CA3AF"
+                    value={surname}
+                    onChangeText={(text) => {
+                      setSurname(text);
+                      if (errorMsg) setErrorMsg('');
+                    }}
+                    onFocus={() => setFocusedField('surname')}
+                    onBlur={() => setFocusedField(null)}
+                  />
+                </View>
+              </View>
 
-              <Input
-                label="Password *"
-                placeholder="At least 6 characters"
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  if (errorMsg) setErrorMsg('');
-                }}
-                secureTextEntry
-              />
+              {/* Row 2: Your email address */}
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    focusedField === 'email' && styles.inputFocused,
+                  ]}
+                  placeholder="Your email address"
+                  placeholderTextColor="#9CA3AF"
+                  value={email}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    if (errorMsg) setErrorMsg('');
+                  }}
+                  onFocus={() => setFocusedField('email')}
+                  onBlur={() => setFocusedField(null)}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  autoCorrect={false}
+                />
+              </View>
 
-              <Input
-                label="Branch / Major"
-                placeholder="e.g. Computer Science, AI, Mechanical"
-                value={branch}
-                onChangeText={setBranch}
-              />
+              {/* Row 3: Password */}
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    focusedField === 'password' && styles.inputFocused,
+                  ]}
+                  placeholder="Choose a password (min 6 chars)"
+                  placeholderTextColor="#9CA3AF"
+                  value={password}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    if (errorMsg) setErrorMsg('');
+                  }}
+                  onFocus={() => setFocusedField('password')}
+                  onBlur={() => setFocusedField(null)}
+                  secureTextEntry
+                />
+              </View>
 
-              <Input
-                label="Graduation Year"
-                placeholder="2026"
-                value={gradYear}
-                onChangeText={setGradYear}
-                keyboardType="number-pad"
-              />
-
-              <Button
-                title="Create Account with 2-Step Verification"
-                onPress={handleRegister}
-                loading={loading}
-                style={styles.submitBtn}
-              />
-
+              {/* Continue Button (Solid Black like screenshot) */}
               <TouchableOpacity
-                onPress={() => {
-                  setErrorMsg('');
-                  navigation.navigate('Login');
-                }}
-                style={styles.linkContainer}
+                style={styles.continueBtn}
+                onPress={handleRegister}
+                disabled={loading}
+                activeOpacity={0.85}
               >
-                <Text style={styles.linkText}>
-                  Already registered? <Text style={styles.linkHighlight}>Sign In</Text>
+                <Text style={styles.continueBtnText}>
+                  {loading ? 'Continuing...' : 'Continue'}
                 </Text>
               </TouchableOpacity>
+
+              {/* OR Divider Line */}
+              <View style={styles.dividerRow}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>OR</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              {/* Google Button */}
+              <TouchableOpacity
+                style={styles.socialBtn}
+                onPress={() => {
+                  setSocialModalType('google');
+                  setSocialInput('');
+                  setShowCustomInput(false);
+                  setErrorMsg('');
+                }}
+                activeOpacity={0.8}
+              >
+                <Image
+                  source={{ uri: 'https://developers.google.com/identity/images/g-logo.png' }}
+                  style={styles.socialLogo}
+                />
+                <Text style={styles.socialBtnText}>Continue with Google</Text>
+              </TouchableOpacity>
+
+              {/* GitHub Button */}
+              <TouchableOpacity
+                style={styles.socialBtn}
+                onPress={() => {
+                  setSocialModalType('github');
+                  setSocialInput('');
+                  setShowCustomInput(false);
+                  setErrorMsg('');
+                }}
+                activeOpacity={0.8}
+              >
+                <Image
+                  source={{ uri: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png' }}
+                  style={styles.socialLogo}
+                />
+                <Text style={styles.socialBtnText}>Continue with GitHub</Text>
+              </TouchableOpacity>
+
+              {/* Switch to Sign In inside Card */}
+              <View style={styles.switchRow}>
+                <Text style={styles.switchText}>
+                  Already have an account?{' '}
+                  <Text
+                    style={styles.switchLink}
+                    onPress={() => {
+                      setErrorMsg('');
+                      navigation.navigate('Login');
+                    }}
+                  >
+                    Sign in
+                  </Text>
+                </Text>
+              </View>
             </>
           ) : (
             <>
               {/* 2-Step Verification Step */}
-              <View style={styles.twoStepHeader}>
-                <Text style={styles.twoStepIcon}>🔐</Text>
-                <Text style={styles.title}>2-Step Verification</Text>
-                <Text style={styles.subtitle}>
-                  Enter the 6-digit security code sent to verify your student account.
-                </Text>
-              </View>
+              <Text style={styles.twoStepTitle}>Verify your identity</Text>
+              <Text style={styles.twoStepSubtitle}>
+                Enter the 6-digit security code sent to verify your student account.
+              </Text>
 
-              {/* Auto-fill Helper Badge */}
               <TouchableOpacity
                 style={styles.otpHelperBadge}
                 onPress={() => setOtpCode(debugOtp || '123456')}
                 activeOpacity={0.7}
               >
-                <Text style={styles.otpHelperLabel}>⚡ Security Code:</Text>
+                <Text style={styles.otpHelperLabel}>Security Code:</Text>
                 <Text style={styles.otpHelperCode}>{debugOtp || '123456'}</Text>
                 <Text style={styles.otpHelperHint}>(Tap to auto-fill)</Text>
               </TouchableOpacity>
@@ -354,29 +398,38 @@ export const RegisterScreen = ({ navigation }: any) => {
                 </View>
               )}
 
-              <Input
-                label="6-Digit Verification Code"
-                placeholder="e.g. 123456"
-                value={otpCode}
-                onChangeText={setOtpCode}
-                keyboardType="number-pad"
-                maxLength={6}
-                style={styles.otpInput}
-              />
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.otpInput,
+                    focusedField === 'otp' && styles.inputFocused,
+                  ]}
+                  placeholder="123456"
+                  placeholderTextColor="#9CA3AF"
+                  value={otpCode}
+                  onChangeText={setOtpCode}
+                  onFocus={() => setFocusedField('otp')}
+                  onBlur={() => setFocusedField(null)}
+                  keyboardType="number-pad"
+                  maxLength={6}
+                />
+              </View>
 
-              <Button
-                title="Verify & Complete Registration"
+              <TouchableOpacity
+                style={styles.continueBtn}
                 onPress={handleVerify2FA}
-                loading={loading}
-                style={styles.submitBtn}
-              />
+                disabled={loading}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.continueBtnText}>
+                  {loading ? 'Verifying...' : 'Verify & Continue'}
+                </Text>
+              </TouchableOpacity>
 
               <View style={styles.twoStepActions}>
-                <TouchableOpacity
-                  onPress={handleResendOtp}
-                  style={styles.twoStepActionBtn}
-                >
-                  <Text style={styles.twoStepActionText}>🔄 Resend Code</Text>
+                <TouchableOpacity onPress={handleResendOtp}>
+                  <Text style={styles.switchLink}>Resend code</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -384,32 +437,35 @@ export const RegisterScreen = ({ navigation }: any) => {
                     setStep('REGISTER');
                     setErrorMsg('');
                   }}
-                  style={styles.twoStepActionBtn}
                 >
-                  <Text style={styles.twoStepActionText}>← Back to Details</Text>
+                  <Text style={styles.switchLink}>← Back to details</Text>
                 </TouchableOpacity>
               </View>
             </>
           )}
         </View>
 
+        {/* Footer Outside the Card (Exact match to screenshot) */}
+        <View style={styles.footerTerms}>
+          <Text style={styles.footerTermsText}>
+            By creating an account, you agree to the
+          </Text>
+          <Text style={styles.footerTermsText}>
+            Terms of Service and Privacy Policy
+          </Text>
+        </View>
+
         {/* Device Account Selector Modal */}
         {!!socialModalType && (
           <View style={styles.modalOverlay}>
             <View style={styles.modalCard}>
-              <View style={styles.accountModalHeader}>
-                <Text style={styles.accountModalIcon}>
-                  {socialModalType === 'google' ? '🌐' : '🐙'}
-                </Text>
-                <Text style={styles.modalTitle}>
-                  {socialModalType === 'google' ? 'Choose a Google Account' : 'Select GitHub Account'}
-                </Text>
-                <Text style={styles.modalSubtitle}>
-                  Select an account logged in on this device to continue to CampusConnect
-                </Text>
-              </View>
+              <Text style={styles.modalTitle}>
+                {socialModalType === 'google' ? 'Choose a Google Account' : 'Select GitHub Account'}
+              </Text>
+              <Text style={styles.modalSubtitle}>
+                Select an account on this device to continue to CampusConnect
+              </Text>
 
-              {/* Detected Accounts on this Device */}
               <Text style={styles.deviceAccountsHeader}>ACCOUNTS ON THIS DEVICE</Text>
 
               <View style={styles.accountsList}>
@@ -438,7 +494,6 @@ export const RegisterScreen = ({ navigation }: any) => {
                 ))}
               </View>
 
-              {/* Toggle to Use Another Account */}
               {!showCustomInput ? (
                 <TouchableOpacity
                   style={styles.useAnotherBtn}
@@ -450,34 +505,33 @@ export const RegisterScreen = ({ navigation }: any) => {
                   </Text>
                 </TouchableOpacity>
               ) : (
-                <View style={styles.customInputBox}>
-                  <Input
-                    label={socialModalType === 'google' ? 'Other Google Email' : 'Other GitHub Username'}
-                    placeholder={socialModalType === 'google' ? 'student@campus.edu' : 'e.g. octocat'}
+                <View style={{ marginBottom: 14 }}>
+                  <TextInput
+                    style={[styles.input, { marginBottom: 10 }]}
+                    placeholder={socialModalType === 'google' ? 'Your email address' : 'Your GitHub username'}
+                    placeholderTextColor="#9CA3AF"
                     value={socialInput}
                     onChangeText={setSocialInput}
                     autoCapitalize="none"
                   />
-                  <Button
-                    title={`Register with ${socialModalType === 'google' ? 'Email' : 'Username'}`}
+                  <TouchableOpacity
+                    style={styles.continueBtn}
                     onPress={() => handleSocialAuth()}
-                    loading={loading}
-                    style={{ marginTop: 4 }}
-                  />
+                  >
+                    <Text style={styles.continueBtnText}>Continue</Text>
+                  </TouchableOpacity>
                 </View>
               )}
 
-              <View style={styles.modalActions}>
-                <Button
-                  title="Cancel"
-                  variant="outline"
-                  onPress={() => {
-                    setSocialModalType(null);
-                    setShowCustomInput(false);
-                  }}
-                  style={{ flex: 1 }}
-                />
-              </View>
+              <TouchableOpacity
+                onPress={() => {
+                  setSocialModalType(null);
+                  setShowCustomInput(false);
+                }}
+                style={{ alignItems: 'center', marginTop: 8 }}
+              >
+                <Text style={{ color: '#6B7280', fontSize: 13 }}>Cancel</Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -489,151 +543,180 @@ export const RegisterScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#FFFFFF', // Clean white background
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    paddingVertical: 48,
+    paddingHorizontal: 20,
+  },
+  mainTitle: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#111827',
+    textAlign: 'center',
+    marginBottom: 28,
+    letterSpacing: -0.4,
   },
   card: {
     width: '100%',
-    maxWidth: 440,
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
+    maxWidth: 420,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E5E7EB',
     borderWidth: 1,
     borderRadius: 16,
-    padding: 26,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 16,
+    padding: 28,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
     elevation: 2,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-
-    color: colors.text,
-    marginBottom: 4,
+  rowTwoCols: {
+    flexDirection: 'row',
+    gap: 12,
   },
-  subtitle: {
-    fontSize: 13,
-    color: colors.textMuted,
-    marginBottom: 18,
+  inputWrapper: {
+    marginBottom: 12,
   },
-  socialGroup: {
-    gap: 10,
-    marginBottom: 16,
-  },
-  socialBtn: {
+  input: {
     backgroundColor: '#FFFFFF',
-    borderColor: colors.border,
+    borderColor: '#D1D5DB',
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 8,
+    paddingHorizontal: 14,
     paddingVertical: 12,
+    fontSize: 15,
+    color: '#111827',
+  },
+  inputFocused: {
+    borderColor: '#6366F1', // Active focus ring
+  },
+  continueBtn: {
+    backgroundColor: '#000000', // Solid black continue button like screenshot
+    borderRadius: 8,
+    paddingVertical: 13,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
-    elevation: 1,
+    marginTop: 4,
   },
-  githubBtn: {
-    backgroundColor: '#0F172A',
-    borderColor: '#0F172A',
-  },
-  githubBtnText: {
+  continueBtnText: {
     color: '#FFFFFF',
-  },
-  socialBtnText: {
-    color: colors.text,
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
   },
-
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 14,
+    marginVertical: 20,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: colors.border,
+    backgroundColor: '#E5E7EB',
   },
   dividerText: {
-    color: colors.textDim,
+    color: '#6B7280',
     fontSize: 12,
     fontWeight: '500',
-    marginHorizontal: 10,
-    textTransform: 'uppercase',
+    marginHorizontal: 12,
+  },
+  socialBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#D1D5DB',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingVertical: 11,
+    marginBottom: 10,
+  },
+  socialLogo: {
+    width: 18,
+    height: 18,
+    marginRight: 10,
+    resizeMode: 'contain',
+  },
+  socialBtnText: {
+    color: '#111827',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  switchRow: {
+    alignItems: 'center',
+    marginTop: 18,
+  },
+  switchText: {
+    color: '#4B5563',
+    fontSize: 14,
+  },
+  switchLink: {
+    color: '#6366F1',
+    fontWeight: '500',
+  },
+  footerTerms: {
+    marginTop: 36,
+    alignItems: 'center',
+  },
+  footerTermsText: {
+    color: '#6B7280',
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: 'center',
   },
   errorBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
-    borderColor: colors.danger,
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FCA5A5',
     borderWidth: 1,
     borderRadius: 8,
     padding: 10,
     marginBottom: 14,
   },
   errorText: {
-    color: colors.danger,
+    color: '#DC2626',
     fontSize: 13,
-    fontWeight: '500',
     textAlign: 'center',
   },
-  submitBtn: {
-    marginTop: 6,
-  },
-  linkContainer: {
-    marginTop: 18,
-    alignItems: 'center',
-  },
-  linkText: {
-    color: colors.textMuted,
-    fontSize: 13,
-  },
-  linkHighlight: {
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  twoStepHeader: {
-    alignItems: 'center',
+  twoStepTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: 4,
     textAlign: 'center',
-    marginBottom: 10,
   },
-  twoStepIcon: {
-    fontSize: 36,
-    marginBottom: 8,
+  twoStepSubtitle: {
+    fontSize: 13,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 16,
   },
   otpHelperBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    borderColor: colors.primary,
+    backgroundColor: '#F3F4F6',
+    borderColor: '#E5E7EB',
     borderWidth: 1,
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 16,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
   },
   otpHelperLabel: {
-    color: colors.textMuted,
+    color: '#6B7280',
     fontSize: 12,
-    fontWeight: '500',
   },
   otpHelperCode: {
-    color: colors.primary,
-    fontSize: 18,
-    fontWeight: '800',
+    color: '#111827',
+    fontSize: 16,
+    fontWeight: '700',
     letterSpacing: 2,
   },
   otpHelperHint: {
-    color: colors.textDim,
+    color: '#9CA3AF',
     fontSize: 11,
   },
   otpInput: {
@@ -645,16 +728,7 @@ const styles = StyleSheet.create({
   twoStepActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
-  },
-  twoStepActionBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  twoStepActionText: {
-    color: colors.primary,
-    fontSize: 13,
-    fontWeight: '600',
+    marginTop: 18,
   },
   modalOverlay: {
     position: 'absolute',
@@ -662,118 +736,101 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(15, 23, 42, 0.45)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
     zIndex: 100,
   },
   modalCard: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E5E7EB',
     borderWidth: 1,
     borderRadius: 16,
-    padding: 22,
+    padding: 24,
     width: '100%',
-    maxWidth: 440,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 8,
-  },
-
-  accountModalHeader: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  accountModalIcon: {
-    fontSize: 32,
-    marginBottom: 6,
+    maxWidth: 420,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 6,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.text,
+    color: '#111827',
     textAlign: 'center',
     marginBottom: 4,
   },
   modalSubtitle: {
     fontSize: 13,
-    color: colors.textMuted,
+    color: '#6B7280',
     textAlign: 'center',
-    lineHeight: 18,
+    marginBottom: 16,
   },
   deviceAccountsHeader: {
     fontSize: 11,
     fontWeight: '700',
-    color: colors.textDim,
+    color: '#9CA3AF',
     letterSpacing: 0.5,
-    marginBottom: 10,
-    marginTop: 4,
+    marginBottom: 8,
   },
   accountsList: {
     gap: 8,
-    marginBottom: 14,
+    marginBottom: 12,
   },
   accountCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surfaceLight,
-    borderColor: colors.border,
+    backgroundColor: '#F9FAFB',
+    borderColor: '#E5E7EB',
     borderWidth: 1,
-    borderRadius: 12,
-    padding: 12,
-    gap: 12,
+    borderRadius: 10,
+    padding: 10,
+    gap: 10,
   },
   accountAvatarBadge: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: colors.primaryLight,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#EEF2FF',
     alignItems: 'center',
     justifyContent: 'center',
   },
   accountAvatarText: {
-    color: colors.primary,
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  accountName: {
-    color: colors.text,
-    fontSize: 14,
+    color: '#6366F1',
+    fontSize: 15,
     fontWeight: '700',
   },
-  accountIdentifier: {
-    color: colors.textMuted,
-    fontSize: 12,
-    marginTop: 1,
-  },
-  deviceBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  deviceBadgeText: {
-    color: colors.primary,
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  useAnotherBtn: {
-    paddingVertical: 10,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  useAnotherText: {
-    color: colors.primary,
+  accountName: {
+    color: '#111827',
     fontSize: 13,
     fontWeight: '600',
   },
-  customInputBox: {
-    marginBottom: 14,
+  accountIdentifier: {
+    color: '#6B7280',
+    fontSize: 11,
   },
-  modalActions: {
-    marginTop: 6,
+  deviceBadge: {
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  deviceBadgeText: {
+    color: '#059669',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  useAnotherBtn: {
+    paddingVertical: 8,
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  useAnotherText: {
+    color: '#6366F1',
+    fontSize: 13,
+    fontWeight: '500',
   },
 });
