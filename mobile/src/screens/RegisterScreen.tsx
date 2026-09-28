@@ -238,9 +238,12 @@ export const RegisterScreen = ({ navigation }: any) => {
                   }}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.socialBtnText}>🐙 Sign Up with GitHub</Text>
+                  <Text style={[styles.socialBtnText, styles.githubBtnText]}>
+                    🐙 Sign Up with GitHub
+                  </Text>
                 </TouchableOpacity>
               </View>
+
 
               {/* Divider */}
               <View style={styles.dividerRow}>
@@ -498,7 +501,12 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderWidth: 1,
     borderRadius: 16,
-    padding: 22,
+    padding: 24,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 2,
   },
   title: {
     fontSize: 20,
@@ -516,23 +524,32 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   socialBtn: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: '#FFFFFF',
     borderColor: colors.border,
     borderWidth: 1,
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 1,
   },
   githubBtn: {
-    backgroundColor: '#1E293B',
-    borderColor: '#334155',
+    backgroundColor: '#0F172A',
+    borderColor: '#0F172A',
+  },
+  githubBtnText: {
+    color: '#FFFFFF',
   },
   socialBtnText: {
     color: colors.text,
     fontSize: 14,
     fontWeight: '600',
   },
+
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -641,7 +658,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -655,7 +672,13 @@ const styles = StyleSheet.create({
     padding: 22,
     width: '100%',
     maxWidth: 440,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 8,
   },
+
   accountModalHeader: {
     alignItems: 'center',
     marginBottom: 16,
