@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
 import { colors } from '../theme/colors';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
@@ -8,237 +16,73 @@ import { useAuthStore } from '../store/authStore';
 import { showAlert } from '../utils/alert';
 
 export const LoginScreen = ({ navigation }: any) => {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
-  
-  // Login fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
-  // Register fields (Fresh Mail / Account creation)
-  const [fullName, setFullName] = useState('');
-  const [regEmail, setRegEmail] = useState('');
-  const [regPassword, setRegPassword] = useState('');
-  const [branch, setBranch] = useState('Computer Science');
-  const [gradYear, setGradYear] = useState('2026');
-
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [githubLoading, setGithubLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  const handleLoginWithCredentials = async (targetEmail?: string, targetPassword?: string) => {
-    const loginEmail = targetEmail || email;
-    const loginPassword = targetPassword || password;
-
+  const handleLogin = async () => {
+    const trimmedEmail = email.trim().toLowerCase();
     setErrorMsg('');
-    if (!loginEmail || !loginPassword) {
-      const err = 'Please fill in email and password';
+
+    if (!trimmedEmail || !password) {
+      const err = 'Please enter both campus email and password.';
       setErrorMsg(err);
-      showAlert('Error', err);
+      showAlert('Missing Information', err);
       return;
     }
 
     try {
       setLoading(true);
-      const res = await authApi.login({ email: loginEmail, password: loginPassword });
+      const res = await authApi.login({
+        email: trimmedEmail,
+        password,
+      });
+
       if (res && res.success) {
         setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
       } else {
-        const msg = res?.message || 'Login failed. Invalid credentials.';
+        const msg = res?.message || 'Login failed. Please verify your credentials.';
         setErrorMsg(msg);
-        showAlert('Login Error', msg);
+        showAlert('Login Failed', msg);
       }
     } catch (err: any) {
-      let msg = 'Login failed. Please check credentials.';
+      let msg = 'Invalid email or password. Please try again.';
       if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
-        msg = 'Server connection timed out (cold start). Please try again in a few seconds.';
+        msg = 'Connection timed out. The server may be waking up, please try again in a moment.';
       } else if (err.response?.data?.message) {
         msg = err.response.data.message;
       } else if (err.message === 'Network Error') {
-        msg = 'Network error. Please check your internet connection or server host.';
+        msg = 'Network error. Please check your internet connection or backend server.';
       }
       setErrorMsg(msg);
-      showAlert('Login Error', msg);
+      showAlert('Login Failed', msg);
     } finally {
       setLoading(false);
     }
   };
-
-  const handleRegister = async () => {
-    setErrorMsg('');
-    if (!fullName || !regEmail || !regPassword) {
-      const err = 'Please fill in full name, fresh email, and password';
-      setErrorMsg(err);
-      showAlert('Error', err);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const res = await authApi.register({
-        fullName,
-        email: regEmail,
-        password: regPassword,
-        branch,
-        gradYear: parseInt(gradYear, 10) || 2026,
-      });
-      if (res && res.success) {
-        setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
-      } else {
-        const msg = res?.message || 'Registration failed.';
-        setErrorMsg(msg);
-        showAlert('Registration Error', msg);
-      }
-    } catch (err: any) {
-      let msg = 'Registration failed. Email may already be registered.';
-      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
-        msg = 'Server connection timed out (cold start). Please try again in a few seconds.';
-      } else if (err.response?.data?.message) {
-        msg = err.response.data.message;
-      }
-      setErrorMsg(msg);
-      showAlert('Registration Error', msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const [googleModalVisible, setGoogleModalVisible] = useState(false);
-  const [googleEmailInput, setGoogleEmailInput] = useState('');
-
-  const [githubModalVisible, setGithubModalVisible] = useState(false);
-  const [githubUsernameInput, setGithubUsernameInput] = useState('');
-
-  const handleDirectGoogleLogin = async (selectedEmail?: string) => {
-    const targetEmail = (selectedEmail || googleEmailInput.trim() || email.trim() || 'student@campus.edu').toLowerCase();
-    setGoogleModalVisible(false);
-    setErrorMsg('');
-
-    try {
-      setGoogleLoading(true);
-      const res = await authApi.googleLogin({
-        email: targetEmail,
-        fullName: targetEmail.split('@')[0].replace('.', ' '),
-      });
-
-      if (res && res.success) {
-        setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
-      } else {
-        showAlert('Google Auth', res?.message || 'Google authentication failed.');
-      }
-    } catch (err: any) {
-      const msg = err.response?.data?.message || 'Google Sign-In completed';
-      setErrorMsg(msg);
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
-
-  const handleDirectGithubLogin = async (selectedUsername?: string) => {
-    const targetUsername = selectedUsername || githubUsernameInput.trim() || 'Nandhakkishore';
-    setGithubModalVisible(false);
-    setErrorMsg('');
-
-    try {
-      setGithubLoading(true);
-      const res = await authApi.githubLogin({
-        username: targetUsername,
-      });
-
-      if (res && res.success) {
-        setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
-      } else {
-        showAlert('GitHub Auth', res?.message || 'GitHub authentication failed.');
-      }
-    } catch (err: any) {
-      const msg = err.response?.data?.message || 'GitHub Sign-In completed';
-      setErrorMsg(msg);
-    } finally {
-      setGithubLoading(false);
-    }
-  };
-
-  const handleStandardGoogleOAuth = async () => {
-    setGoogleModalVisible(true);
-  };
-
-  const handleStandardGithubOAuth = async () => {
-    setGithubModalVisible(true);
-  };
-
-  const currentUser = useAuthStore((state) => state.user);
-  const logoutStore = useAuthStore((state) => state.logout);
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={styles.container}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.header}>
+          <View style={styles.logoBadge}>
+            <Text style={styles.logoIcon}>🚀</Text>
+          </View>
           <Text style={styles.appName}>CampusConnect</Text>
-          <Text style={styles.tagline}>Build teams. Ship projects. Level up campus.</Text>
+          <Text style={styles.tagline}>Connect. Build teams. Ship projects.</Text>
         </View>
 
         <View style={styles.card}>
-          {/* Active Device Session Banner */}
-          {currentUser && (
-            <View style={styles.activeDeviceSessionBox}>
-              <Text style={styles.activeDeviceBadge}>📱 Active Signed-in Account on Device</Text>
-              <Text style={styles.activeDeviceName}>
-                {currentUser.profile?.fullName || currentUser.email}
-              </Text>
-              <Text style={styles.activeDeviceEmail}>{currentUser.email}</Text>
-
-              <View style={styles.activeDeviceActions}>
-                <Button
-                  title={`Continue as ${currentUser.profile?.fullName?.split(' ')[0] || 'Student'}`}
-                  onPress={() => {
-                    // Re-trigger auth store state
-                    setAuth(currentUser, useAuthStore.getState().accessToken || 'token', useAuthStore.getState().refreshToken || 'token');
-                  }}
-                  style={{ flex: 1, marginRight: 6 }}
-                />
-                <Button
-                  title="Switch / Log Out"
-                  variant="outline"
-                  onPress={() => {
-                    logoutStore();
-                    setErrorMsg('');
-                  }}
-                  style={{ flex: 1, marginLeft: 6 }}
-                />
-              </View>
-            </View>
-          )}
-
-          {/* Mode Switcher Tabs */}
-          <View style={styles.tabContainer}>
-            <TouchableOpacity
-              style={[styles.tabButton, mode === 'login' && styles.tabButtonActive]}
-              onPress={() => {
-                setMode('login');
-                setErrorMsg('');
-              }}
-            >
-              <Text style={[styles.tabText, mode === 'login' && styles.tabTextActive]}>
-                🔑 Sign In
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.tabButton, mode === 'register' && styles.tabButtonActive]}
-              onPress={() => {
-                setMode('register');
-                setErrorMsg('');
-              }}
-            >
-              <Text style={[styles.tabText, mode === 'register' && styles.tabTextActive]}>
-                ✨ Create Account
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.title}>Welcome Back</Text>
+          <Text style={styles.subtitle}>Sign in with your campus account to continue</Text>
 
           {!!errorMsg && (
             <View style={styles.errorBox}>
@@ -246,223 +90,50 @@ export const LoginScreen = ({ navigation }: any) => {
             </View>
           )}
 
-          {mode === 'login' ? (
-            <>
-              <Text style={styles.title}>Welcome Back</Text>
-              <Text style={styles.subtitle}>Sign in to your CampusConnect student developer account</Text>
+          <Input
+            label="Campus Email"
+            placeholder="student@campus.edu"
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              if (errorMsg) setErrorMsg('');
+            }}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            autoCorrect={false}
+          />
 
-              {/* Social OAuth Buttons at top (like Linear/GitHub) */}
-              <View style={styles.socialButtonsGroup}>
-                <Button
-                  title="🌐 Continue with Google"
-                  variant="secondary"
-                  onPress={handleStandardGoogleOAuth}
-                  loading={googleLoading}
-                  style={styles.googleBtn}
-                />
+          <Input
+            label="Password"
+            placeholder="••••••••"
+            value={password}
+            onChangeText={(text) => {
+              setPassword(text);
+              if (errorMsg) setErrorMsg('');
+            }}
+            secureTextEntry
+          />
 
-                <Button
-                  title="🐙 Continue with GitHub"
-                  variant="outline"
-                  onPress={handleStandardGithubOAuth}
-                  loading={githubLoading}
-                  style={styles.githubBtn}
-                />
-              </View>
-
-              {/* Divider Line */}
-              <View style={styles.dividerRow}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or continue with email</Text>
-                <View style={styles.dividerLine} />
-              </View>
-
-              <Input
-                label="Campus Email"
-                placeholder="student@campus.edu"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
-
-              <Input
-                label="Password"
-                placeholder="••••••••"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-
-              <Button
-                title="Sign In to CampusConnect"
-                onPress={() => handleLoginWithCredentials()}
-                loading={loading}
-                style={styles.submitBtn}
-              />
-            </>
-          ) : (
-            <>
-              <Text style={styles.title}>Create Fresh Account</Text>
-              <Text style={styles.subtitle}>Register your new student profile with a fresh mail ID</Text>
-
-              <Input
-                label="Full Name *"
-                placeholder="Nandha Dev"
-                value={fullName}
-                onChangeText={setFullName}
-              />
-
-              <Input
-                label="Fresh Campus Email ID *"
-                placeholder="yourname@campus.edu or @gmail.com"
-                value={regEmail}
-                onChangeText={setRegEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
-
-              <Input
-                label="Password *"
-                placeholder="At least 6 characters"
-                value={regPassword}
-                onChangeText={setRegPassword}
-                secureTextEntry
-              />
-
-              <Input
-                label="Branch / Major"
-                placeholder="e.g. Computer Science, AI, Mechanical"
-                value={branch}
-                onChangeText={setBranch}
-              />
-
-              <Input
-                label="Graduation Year"
-                placeholder="2026"
-                value={gradYear}
-                onChangeText={setGradYear}
-                keyboardType="number-pad"
-              />
-
-              <Button
-                title="Register Fresh Account"
-                onPress={handleRegister}
-                loading={loading}
-                style={styles.submitBtn}
-              />
-            </>
-          )}
+          <Button
+            title="Sign In"
+            onPress={handleLogin}
+            loading={loading}
+            style={styles.submitBtn}
+          />
 
           <TouchableOpacity
             onPress={() => {
-              setMode(mode === 'login' ? 'register' : 'login');
               setErrorMsg('');
+              navigation.navigate('Register');
             }}
             style={styles.linkContainer}
           >
             <Text style={styles.linkText}>
-              {mode === 'login' ? (
-                <>Need a fresh account? <Text style={styles.linkHighlight}>Create Fresh Mail ID / Sign Up</Text></>
-              ) : (
-                <>Already have an account? <Text style={styles.linkHighlight}>Switch to Sign In</Text></>
-              )}
+              Don't have an account?{' '}
+              <Text style={styles.linkHighlight}>Create an account</Text>
             </Text>
           </TouchableOpacity>
         </View>
-
-        {/* Google Account Switcher Modal */}
-        {googleModalVisible && (
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalCard}>
-              <Text style={styles.modalTitle}>🌐 Google Account Switcher</Text>
-              <Text style={styles.modalSubtitle}>Select or enter the Google account to sign in as:</Text>
-
-              <View style={styles.chipRow}>
-                <TouchableOpacity
-                  style={styles.accountChip}
-                  onPress={() => handleDirectGoogleLogin('nandhakkishore@gmail.com')}
-                >
-                  <Text style={styles.accountChipText}>👤 Nandha Kishore (nandhakkishore@gmail.com)</Text>
-                </TouchableOpacity>
-              </View>
-
-              <Input
-                label="Or Enter Custom Google Email"
-                placeholder="e.g. yourname@gmail.com or @campus.edu"
-                value={googleEmailInput}
-                onChangeText={setGoogleEmailInput}
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
-
-              <View style={styles.modalActions}>
-                <Button
-                  title="Cancel"
-                  variant="outline"
-                  onPress={() => setGoogleModalVisible(false)}
-                  style={{ flex: 1, marginRight: 8 }}
-                />
-                <Button
-                  title="Sign In with Google"
-                  onPress={() => handleDirectGoogleLogin()}
-                  style={{ flex: 1.5, marginLeft: 8 }}
-                />
-              </View>
-            </View>
-          </View>
-        )}
-
-        {/* GitHub Account Switcher Modal */}
-        {githubModalVisible && (
-          <View style={styles.modalOverlay}>
-            <View style={styles.githubAuthCard}>
-              <View style={styles.githubHeaderRow}>
-                <Text style={{ fontSize: 32 }}>🐙</Text>
-                <Text style={{ fontSize: 20, color: '#8b949e', marginHorizontal: 12 }}>➔</Text>
-                <Text style={{ fontSize: 28 }}>🎓</Text>
-              </View>
-
-              <Text style={styles.githubModalTitle}>GitHub Account Switcher</Text>
-              <Text style={styles.githubModalSubtitle}>
-                Select or enter the GitHub profile to authorize and log in:
-              </Text>
-
-              <View style={{ marginBottom: 12 }}>
-                <TouchableOpacity
-                  style={styles.githubChip}
-                  onPress={() => handleDirectGithubLogin('Nandhakkishore')}
-                >
-                  <Text style={styles.githubChipText}>👤 @Nandhakkishore (GitHub)</Text>
-                </TouchableOpacity>
-              </View>
-
-              <Input
-                label="Or Enter Custom GitHub Username"
-                placeholder="e.g. Nandhakkishore"
-                value={githubUsernameInput}
-                onChangeText={setGithubUsernameInput}
-                autoCapitalize="none"
-              />
-
-              <View style={styles.githubActions}>
-                <TouchableOpacity
-                  style={styles.githubCancelBtn}
-                  onPress={() => setGithubModalVisible(false)}
-                >
-                  <Text style={styles.githubCancelText}>Cancel</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.githubSubmitBtn}
-                  onPress={() => handleDirectGithubLogin()}
-                >
-                  <Text style={styles.githubSubmitText}>Authorize GitHub</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -476,14 +147,28 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: 24,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 28,
+  },
+  logoBadge: {
+    width: 60,
+    height: 60,
+    borderRadius: 16,
+    backgroundColor: colors.surfaceLight,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  logoIcon: {
+    fontSize: 28,
   },
   appName: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '800',
     color: colors.primary,
     letterSpacing: -0.5,
@@ -501,115 +186,33 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 24,
   },
-  activeDeviceSessionBox: {
-    backgroundColor: 'rgba(59, 130, 246, 0.12)',
-    borderColor: '#3B82F6',
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
-  },
-  activeDeviceBadge: {
-    color: '#60A5FA',
-    fontSize: 12,
-    fontWeight: '700',
-    marginBottom: 6,
-  },
-  activeDeviceName: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  activeDeviceEmail: {
-    color: colors.textMuted,
-    fontSize: 13,
-    marginBottom: 14,
-  },
-  activeDeviceActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: colors.surfaceLight,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 20,
-  },
-  tabButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  tabButtonActive: {
-    backgroundColor: colors.primary,
-  },
-  tabText: {
-    color: colors.textMuted,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  tabTextActive: {
-    color: '#ffffff',
-    fontWeight: '700',
-  },
-  socialButtonsGroup: {
-    marginBottom: 16,
-  },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 16,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
-  dividerText: {
-    color: colors.textMuted,
-    fontSize: 12,
-    fontWeight: '500',
-    marginHorizontal: 12,
-    textTransform: 'uppercase',
-  },
-  subtitle: {
-    fontSize: 13,
-    color: colors.textMuted,
-    marginTop: -12,
-    marginBottom: 18,
-  },
   title: {
     fontSize: 22,
     fontWeight: '700',
     color: colors.text,
+    marginBottom: 6,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: colors.textMuted,
     marginBottom: 20,
   },
   errorBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    borderColor: '#EF4444',
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    borderColor: colors.danger,
     borderWidth: 1,
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
   },
   errorText: {
-    color: '#EF4444',
-    fontSize: 14,
+    color: colors.danger,
+    fontSize: 13,
     fontWeight: '500',
     textAlign: 'center',
   },
   submitBtn: {
-    marginTop: 10,
-  },
-  googleBtn: {
-    marginTop: 12,
-  },
-  githubBtn: {
-    marginTop: 12,
+    marginTop: 8,
   },
   linkContainer: {
     marginTop: 20,
@@ -622,135 +225,5 @@ const styles = StyleSheet.create({
   linkHighlight: {
     color: colors.primary,
     fontWeight: '600',
-  },
-  modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    zIndex: 1000,
-  },
-  modalCard: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 16,
-    padding: 20,
-    width: '100%',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: 6,
-  },
-  modalSubtitle: {
-    fontSize: 13,
-    color: colors.textMuted,
-    marginBottom: 16,
-  },
-  quickAccountsLabel: {
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  chipRow: {
-    marginBottom: 16,
-  },
-  accountChip: {
-    backgroundColor: colors.surfaceLight,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 8,
-  },
-  accountChipText: {
-    color: colors.primary,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  modalActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  githubAuthCard: {
-    backgroundColor: '#0d1117',
-    borderColor: '#30363d',
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 24,
-    width: '100%',
-    maxWidth: 440,
-  },
-  githubHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  githubModalTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#f0f6fc',
-    textAlign: 'center',
-    marginBottom: 6,
-  },
-  githubModalSubtitle: {
-    fontSize: 13,
-    color: '#8b949e',
-    textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 18,
-  },
-  githubChip: {
-    backgroundColor: '#21262d',
-    borderColor: '#30363d',
-    borderWidth: 1,
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  githubChipText: {
-    color: '#58a6ff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  githubActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 16,
-    gap: 12,
-  },
-  githubCancelBtn: {
-    flex: 1,
-    backgroundColor: '#21262d',
-    borderColor: '#30363d',
-    borderWidth: 1,
-    paddingVertical: 12,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  githubCancelText: {
-    color: '#c9d1d9',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  githubSubmitBtn: {
-    flex: 1.6,
-    backgroundColor: '#238636',
-    paddingVertical: 12,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  githubSubmitText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 14,
   },
 });
