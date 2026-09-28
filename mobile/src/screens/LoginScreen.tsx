@@ -12,29 +12,34 @@ import { colors } from '../theme/colors';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { authApi } from '../api/authApi';
-import { useAuthStore } from '../store/authStore';
+import { useAuthStore, DeviceAccount } from '../store/authStore';
 import { showAlert } from '../utils/alert';
 
 export const LoginScreen = ({ navigation }: any) => {
   // Steps: 'CREDENTIALS' | '2FA'
   const [step, setStep] = useState<'CREDENTIALS' | '2FA'>('CREDENTIALS');
-  
+
   // Credentials
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   // 2FA state
   const [otpCode, setOtpCode] = useState('');
   const [pendingAuth, setPendingAuth] = useState<any>(null);
   const [debugOtp, setDebugOtp] = useState<string>('');
-  
-  // Social modal state
+
+  // Social account selector modal state
   const [socialModalType, setSocialModalType] = useState<'google' | 'github' | null>(null);
   const [socialInput, setSocialInput] = useState('');
+  const [showCustomInput, setShowCustomInput] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const setAuth = useAuthStore((state) => state.setAuth);
+  const deviceAccounts = useAuthStore((state) => state.deviceAccounts) || [];
+
+  // Filter device accounts matching current social modal type
+  const matchedAccounts = deviceAccounts.filter((acc) => acc.type === socialModalType);
 
   // Trigger 2FA step after credentials validated
   const initiate2FA = async (targetEmail: string, authData: any) => {
@@ -51,7 +56,6 @@ export const LoginScreen = ({ navigation }: any) => {
       setOtpCode('');
       setErrorMsg('');
     } catch (err: any) {
-      // Fallback to demo 2FA code if network error on OTP
       setDebugOtp('123456');
       setPendingAuth(authData);
       setStep('2FA');
@@ -102,10 +106,13 @@ export const LoginScreen = ({ navigation }: any) => {
     }
   };
 
-  const handleSocialAuth = async () => {
-    const val = socialInput.trim();
+  const handleSocialAuth = async (overrideValue?: string) => {
+    const val = (overrideValue || socialInput).trim();
     if (!val) {
-      showAlert('Required', `Please enter your ${socialModalType === 'google' ? 'Google Email' : 'GitHub Username'}.`);
+      showAlert(
+        'Required',
+        `Please enter your ${socialModalType === 'google' ? 'Google Email' : 'GitHub Username'}.`
+      );
       return;
     }
 
@@ -127,6 +134,7 @@ export const LoginScreen = ({ navigation }: any) => {
 
       setSocialModalType(null);
       setSocialInput('');
+      setShowCustomInput(false);
 
       if (res && res.success) {
         await initiate2FA(targetEmail, res.data);
@@ -218,6 +226,7 @@ export const LoginScreen = ({ navigation }: any) => {
                   onPress={() => {
                     setSocialModalType('google');
                     setSocialInput('');
+                    setShowCustomInput(false);
                     setErrorMsg('');
                   }}
                   activeOpacity={0.8}
@@ -230,6 +239,7 @@ export const LoginScreen = ({ navigation }: any) => {
                   onPress={() => {
                     setSocialModalType('github');
                     setSocialInput('');
+                    setShowCustomInput(false);
                     setErrorMsg('');
                   }}
                   activeOpacity={0.8}
@@ -362,39 +372,89 @@ export const LoginScreen = ({ navigation }: any) => {
           )}
         </View>
 
-        {/* Social Auth Modal Prompt */}
+        {/* Device Account Selector Modal */}
         {!!socialModalType && (
           <View style={styles.modalOverlay}>
             <View style={styles.modalCard}>
-              <Text style={styles.modalTitle}>
-                {socialModalType === 'google' ? '🌐 Sign in with Google' : '🐙 Sign in with GitHub'}
-              </Text>
-              <Text style={styles.modalSubtitle}>
-                {socialModalType === 'google'
-                  ? 'Enter your Google campus email address to continue:'
-                  : 'Enter your GitHub profile username to continue:'}
-              </Text>
+              <View style={styles.accountModalHeader}>
+                <Text style={styles.accountModalIcon}>
+                  {socialModalType === 'google' ? '🌐' : '🐙'}
+                </Text>
+                <Text style={styles.modalTitle}>
+                  {socialModalType === 'google' ? 'Choose a Google Account' : 'Select GitHub Account'}
+                </Text>
+                <Text style={styles.modalSubtitle}>
+                  Select an account logged in on this device to continue to CampusConnect
+                </Text>
+              </View>
 
-              <Input
-                label={socialModalType === 'google' ? 'Google Email' : 'GitHub Username'}
-                placeholder={socialModalType === 'google' ? 'student@gmail.com' : 'e.g. octocat'}
-                value={socialInput}
-                onChangeText={setSocialInput}
-                autoCapitalize="none"
-              />
+              {/* Detected Accounts on this Device */}
+              <Text style={styles.deviceAccountsHeader}>ACCOUNTS ON THIS DEVICE</Text>
+
+              <View style={styles.accountsList}>
+                {matchedAccounts.map((acc: DeviceAccount) => (
+                  <TouchableOpacity
+                    key={acc.id}
+                    style={styles.accountCard}
+                    onPress={() => handleSocialAuth(acc.identifier)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.accountAvatarBadge}>
+                      <Text style={styles.accountAvatarText}>
+                        {acc.displayName.charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.accountName}>{acc.displayName}</Text>
+                      <Text style={styles.accountIdentifier}>
+                        {socialModalType === 'github' ? `@${acc.identifier}` : acc.identifier}
+                      </Text>
+                    </View>
+                    <View style={styles.deviceBadge}>
+                      <Text style={styles.deviceBadgeText}>Signed in</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Toggle to Use Another Account */}
+              {!showCustomInput ? (
+                <TouchableOpacity
+                  style={styles.useAnotherBtn}
+                  onPress={() => setShowCustomInput(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.useAnotherText}>
+                    + Use another {socialModalType === 'google' ? 'Google email' : 'GitHub profile'}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.customInputBox}>
+                  <Input
+                    label={socialModalType === 'google' ? 'Other Google Email' : 'Other GitHub Username'}
+                    placeholder={socialModalType === 'google' ? 'student@campus.edu' : 'e.g. octocat'}
+                    value={socialInput}
+                    onChangeText={setSocialInput}
+                    autoCapitalize="none"
+                  />
+                  <Button
+                    title={`Sign In with ${socialModalType === 'google' ? 'Email' : 'Username'}`}
+                    onPress={() => handleSocialAuth()}
+                    loading={loading}
+                    style={{ marginTop: 4 }}
+                  />
+                </View>
+              )}
 
               <View style={styles.modalActions}>
                 <Button
                   title="Cancel"
                   variant="outline"
-                  onPress={() => setSocialModalType(null)}
-                  style={{ flex: 1, marginRight: 8 }}
-                />
-                <Button
-                  title="Continue"
-                  onPress={handleSocialAuth}
-                  loading={loading}
-                  style={{ flex: 1.5, marginLeft: 8 }}
+                  onPress={() => {
+                    setSocialModalType(null);
+                    setShowCustomInput(false);
+                  }}
+                  style={{ flex: 1 }}
                 />
               </View>
             </View>
@@ -593,7 +653,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -604,24 +664,101 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderWidth: 1,
     borderRadius: 16,
-    padding: 20,
+    padding: 22,
     width: '100%',
-    maxWidth: 420,
+    maxWidth: 440,
+  },
+  accountModalHeader: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  accountModalIcon: {
+    fontSize: 32,
+    marginBottom: 6,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: 6,
+    textAlign: 'center',
+    marginBottom: 4,
   },
   modalSubtitle: {
     fontSize: 13,
     color: colors.textMuted,
-    marginBottom: 16,
+    textAlign: 'center',
+    lineHeight: 18,
   },
-  modalActions: {
+  deviceAccountsHeader: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.textDim,
+    letterSpacing: 0.5,
+    marginBottom: 10,
+    marginTop: 4,
+  },
+  accountsList: {
+    gap: 8,
+    marginBottom: 14,
+  },
+  accountCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    backgroundColor: colors.surfaceLight,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+    gap: 12,
+  },
+  accountAvatarBadge: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: colors.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  accountAvatarText: {
+    color: colors.primary,
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  accountName: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  accountIdentifier: {
+    color: colors.textMuted,
+    fontSize: 12,
+    marginTop: 1,
+  },
+  deviceBadge: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  deviceBadgeText: {
+    color: colors.primary,
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  useAnotherBtn: {
+    paddingVertical: 10,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  useAnotherText: {
+    color: colors.primary,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  customInputBox: {
+    marginBottom: 14,
+  },
+  modalActions: {
+    marginTop: 6,
   },
 });
