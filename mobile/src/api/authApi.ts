@@ -49,4 +49,15 @@ export const authApi = {
     const res = await apiClient.post('/auth/logout', { refreshToken });
     return res.data;
   },
+
+  sendOtp: async (email: string): Promise<{ success: boolean; message: string; data?: { debugCode?: string } }> => {
+    const res = await apiClient.post('/auth/send-otp', { email });
+    return res.data;
+  },
+
+  verifyOtp: async (email: string, code: string): Promise<{ success: boolean; message: string }> => {
+    const res = await apiClient.post('/auth/verify-otp', { email, code });
+    return res.data;
+  },
 };
+

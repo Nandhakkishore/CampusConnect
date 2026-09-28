@@ -109,3 +109,30 @@ export const getMe = async (req: AuthenticatedRequest, res: Response, next: Next
     next(err);
   }
 };
+
+export const sendOtp = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required for 2-step verification' });
+    }
+    const result = authService.sendOtpService(email);
+    return sendSuccess(res, { debugCode: result.code }, result.message);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const verifyOtp = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code) {
+      return res.status(400).json({ success: false, message: 'Email and verification code are required' });
+    }
+    authService.verifyOtpService(email, code);
+    return sendSuccess(res, { verified: true }, 'Verification successful');
+  } catch (err) {
+    next(err);
+  }
+};
+

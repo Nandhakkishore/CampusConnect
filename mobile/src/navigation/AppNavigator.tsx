@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View } from 'react-native';
+import { Text, View, TouchableOpacity, Platform } from 'react-native';
 
 import { useAuthStore } from '../store/authStore';
 import { colors } from '../theme/colors';
@@ -24,6 +24,43 @@ import { NotificationsScreen } from '../screens/NotificationsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+const SignOutButton = () => {
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleSignOut = () => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      if (window.confirm('Are you sure you want to sign out?')) {
+        logout();
+      }
+    } else {
+      logout();
+    }
+  };
+
+  return (
+    <TouchableOpacity
+      onPress={handleSignOut}
+      style={{
+        backgroundColor: 'rgba(239, 68, 68, 0.15)',
+        borderColor: '#EF4444',
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        marginRight: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}
+      activeOpacity={0.7}
+    >
+      <Text style={{ color: '#EF4444', fontWeight: '700', fontSize: 12 }}>
+        Sign Out 🚪
+      </Text>
+    </TouchableOpacity>
+  );
+};
+
 
 const TabIcon = ({ label, focused }: { label: string; focused: boolean }) => {
   let icon = '💡';
@@ -115,6 +152,7 @@ export const AppNavigator = () => {
           headerTintColor: colors.text,
           headerTitleStyle: { fontWeight: '700' },
           contentStyle: { backgroundColor: colors.background },
+          headerRight: () => <SignOutButton />,
         }}
       >
         {!isAuthenticated ? (
@@ -135,13 +173,23 @@ export const AppNavigator = () => {
             <Stack.Screen
               name="MainTabs"
               component={MainTabNavigator}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'CampusConnect 🚀',
+                headerTitleStyle: {
+                  color: colors.primary,
+                  fontWeight: '800',
+                  fontSize: 20,
+                },
+                headerRight: () => <SignOutButton />,
+              }}
             />
             <Stack.Screen
               name="ProjectDetail"
               component={ProjectDetailScreen}
               options={{ title: 'Project Details' }}
             />
+
             <Stack.Screen
               name="CreateProject"
               component={CreateProjectScreen}

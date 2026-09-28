@@ -7,6 +7,8 @@ import {
   refreshToken,
   logout,
   getMe,
+  sendOtp,
+  verifyOtp,
   registerSchema,
   loginSchema,
   refreshSchema,
@@ -20,8 +22,11 @@ router.post('/register', validateBody(registerSchema), register);
 router.post('/login', validateBody(loginSchema), login);
 router.post('/google', googleLogin);
 router.post('/github', githubLogin);
+router.post('/send-otp', sendOtp);
+router.post('/verify-otp', verifyOtp);
 router.post('/refresh', validateBody(refreshSchema), refreshToken);
 router.post('/logout', logout);
 router.get('/me', authenticateToken, getMe);
+
 
 export default router;
