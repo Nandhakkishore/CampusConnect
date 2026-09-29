@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore } from './authStore';
 
-export const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL || 'https://campusconnect-7xaa.onrender.com';
+export const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL || 'https://campus-connect-api-drab.vercel.app';
 
 interface SocketState {
   socket: Socket | null;

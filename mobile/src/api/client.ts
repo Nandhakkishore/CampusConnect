@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
-export const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://campusconnect-7xaa.onrender.com/api';
+export const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://campus-connect-api-drab.vercel.app/api';
 
 const apiClient = axios.create({
   baseURL: API_URL,
