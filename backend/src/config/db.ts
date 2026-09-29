@@ -1,18 +1,16 @@
 import { PrismaClient } from '@prisma/client';
 import { mockPrisma } from './mockDb';
 
-const realPrisma = new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-});
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
-// Proxy that falls back to in-memory mock during testing if DB is unreachable
-const prismaProxy = new Proxy(realPrisma, {
-  get(target: any, prop: string) {
-    if (process.env.USE_MOCK_DB === 'true') {
-      return (mockPrisma as any)[prop] || target[prop];
-    }
-    return target[prop];
-  },
-});
+const realPrisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  });
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = realPrisma;
+}
 
 export default process.env.USE_MOCK_DB === 'true' ? (mockPrisma as any) : realPrisma;
