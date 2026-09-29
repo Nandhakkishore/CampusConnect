@@ -5,14 +5,14 @@ import { sendSuccess, sendError } from '../utils/response';
 import { AuthenticatedRequest } from '../middleware/auth';
 
 export const createProjectSchema = z.object({
-  title: z.string().min(3, 'Title must be at least 3 characters'),
-  summary: z.string().min(10, 'Summary must be at least 10 characters'),
-  description: z.string().min(20, 'Description must be at least 20 characters'),
+  title: z.string().min(2, 'Title must be at least 2 characters'),
+  summary: z.string().min(3, 'Summary must be at least 3 characters'),
+  description: z.string().min(5, 'Description must be at least 5 characters'),
   branch: z.string().optional(),
   techStack: z.array(z.string()).min(1, 'Select at least one tech stack tag'),
   status: z.enum(['IDEA', 'IN_PROGRESS', 'RECRUITING', 'COMPLETED']).optional(),
-  repositoryUrl: z.string().url('Invalid repo URL').optional().or(z.literal('')),
-  demoUrl: z.string().url('Invalid demo URL').optional().or(z.literal('')),
+  repositoryUrl: z.string().optional().or(z.literal('')),
+  demoUrl: z.string().optional().or(z.literal('')),
 });
 
 export const updateProjectSchema = createProjectSchema.partial();
