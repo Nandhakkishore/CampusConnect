@@ -116,8 +116,8 @@ export const sendOtp = async (req: Request, res: Response, next: NextFunction) =
     if (!email) {
       return res.status(400).json({ success: false, message: 'Email is required for 2-step verification' });
     }
-    const result = authService.sendOtpService(email);
-    return sendSuccess(res, { debugCode: result.code }, result.message);
+    const result = await authService.sendOtpService(email);
+    return sendSuccess(res, { sent: true }, result.message);
   } catch (err) {
     next(err);
   }

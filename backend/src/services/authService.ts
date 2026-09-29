@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import prisma from '../config/db';
 import { generateTokens, verifyRefreshToken } from '../utils/jwt';
+import { sendVerificationEmail } from './emailService';
 
 export interface RegisterInput {
   email: string;
@@ -273,15 +274,18 @@ export const loginOrCreateGithubUser = async (username: string) => {
 // In-memory store for 2-Step Verification codes
 const otpStore = new Map<string, { code: string; expiresAt: number }>();
 
-export const sendOtpService = (email: string) => {
+export const sendOtpService = async (email: string) => {
   const cleanEmail = email.toLowerCase().trim();
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
   otpStore.set(cleanEmail, { code, expiresAt });
 
+  // Send real email to registered email address
+  await sendVerificationEmail(cleanEmail, code);
+
   return {
-    code,
-    message: `Verification code generated for ${cleanEmail}`,
+    sent: true,
+    message: `Verification code sent to ${cleanEmail}`,
   };
 };
 

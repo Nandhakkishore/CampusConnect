@@ -24,12 +24,12 @@ export const RegisterScreen = ({ navigation }: any) => {
   const [surname, setSurname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
   // 2FA state
   const [otpCode, setOtpCode] = useState('');
   const [pendingAuth, setPendingAuth] = useState<any>(null);
-  const [debugOtp, setDebugOtp] = useState<string>('');
 
   // Social account selector modal state
   const [socialModalType, setSocialModalType] = useState<'google' | 'github' | null>(null);
@@ -46,18 +46,12 @@ export const RegisterScreen = ({ navigation }: any) => {
   const initiate2FA = async (targetEmail: string, authData: any) => {
     try {
       setLoading(true);
-      const otpRes = await authApi.sendOtp(targetEmail);
-      if (otpRes?.data?.debugCode) {
-        setDebugOtp(otpRes.data.debugCode);
-      } else {
-        setDebugOtp('123456');
-      }
+      await authApi.sendOtp(targetEmail);
       setPendingAuth(authData);
       setStep('2FA');
       setOtpCode('');
       setErrorMsg('');
     } catch (err: any) {
-      setDebugOtp('123456');
       setPendingAuth(authData);
       setStep('2FA');
       setOtpCode('');
@@ -185,14 +179,10 @@ export const RegisterScreen = ({ navigation }: any) => {
     try {
       setLoading(true);
       const targetEmail = pendingAuth?.user?.email || email;
-      const res = await authApi.sendOtp(targetEmail);
-      if (res?.data?.debugCode) {
-        setDebugOtp(res.data.debugCode);
-      }
-      showAlert('Code Sent', `A new verification code has been dispatched to ${targetEmail}`);
+      await authApi.sendOtp(targetEmail);
+      showAlert('Code Sent', `A new 6-digit security code has been sent to ${targetEmail}. Please check your inbox.`);
     } catch (err) {
-      setDebugOtp('123456');
-      showAlert('Code Sent', 'Use security code 123456 for test verification.');
+      showAlert('Code Sent', 'A verification code has been dispatched. Please check your email.');
     } finally {
       setLoading(false);
     }
@@ -283,24 +273,38 @@ export const RegisterScreen = ({ navigation }: any) => {
                 />
               </View>
 
-              {/* Row 3: Password */}
+              {/* Row 3: Password with Eye Icon Show/Hide Toggle */}
               <View style={styles.inputWrapper}>
-                <TextInput
+                <View
                   style={[
-                    styles.input,
+                    styles.passwordContainer,
                     focusedField === 'password' && styles.inputFocused,
                   ]}
-                  placeholder="Choose a password (min 6 chars)"
-                  placeholderTextColor="#9CA3AF"
-                  value={password}
-                  onChangeText={(text) => {
-                    setPassword(text);
-                    if (errorMsg) setErrorMsg('');
-                  }}
-                  onFocus={() => setFocusedField('password')}
-                  onBlur={() => setFocusedField(null)}
-                  secureTextEntry
-                />
+                >
+                  <TextInput
+                    style={styles.passwordInput}
+                    placeholder="Choose a password (min 6 chars)"
+                    placeholderTextColor="#9CA3AF"
+                    value={password}
+                    onChangeText={(text) => {
+                      setPassword(text);
+                      if (errorMsg) setErrorMsg('');
+                    }}
+                    onFocus={() => setFocusedField('password')}
+                    onBlur={() => setFocusedField(null)}
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                  />
+                  <TouchableOpacity
+                    style={styles.eyeBtn}
+                    onPress={() => setShowPassword((prev) => !prev)}
+                    activeOpacity={0.7}
+                    accessibilityRole="button"
+                    accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
 
               {/* Continue Button (Solid Black like screenshot) */}
@@ -382,15 +386,22 @@ export const RegisterScreen = ({ navigation }: any) => {
                 Enter the 6-digit security code sent to verify your student account.
               </Text>
 
-              <TouchableOpacity
-                style={styles.otpHelperBadge}
-                onPress={() => setOtpCode(debugOtp || '123456')}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.otpHelperLabel}>Security Code:</Text>
-                <Text style={styles.otpHelperCode}>{debugOtp || '123456'}</Text>
-                <Text style={styles.otpHelperHint}>(Tap to auto-fill)</Text>
-              </TouchableOpacity>
+              {/* Email Dispatch Notice (Code sent to registered email, not shown on screen) */}
+              <View style={styles.emailNoticeBox}>
+                <View style={styles.emailNoticeHeader}>
+                  <Text style={styles.emailNoticeIcon}>✉️</Text>
+                  <Text style={styles.emailNoticeTitle}>Security Code Dispatched</Text>
+                </View>
+                <Text style={styles.emailNoticeText}>
+                  A 6-digit security code has been sent to your registered email:
+                </Text>
+                <Text style={styles.emailNoticeTarget}>
+                  {pendingAuth?.user?.email || email}
+                </Text>
+                <Text style={styles.emailNoticeSubtext}>
+                  Please check your inbox (and spam/junk folder) and enter the code below.
+                </Text>
+              </View>
 
               {!!errorMsg && (
                 <View style={styles.errorBox}>
@@ -693,31 +704,66 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 16,
   },
-  otpHelperBadge: {
-    backgroundColor: '#F3F4F6',
-    borderColor: '#E5E7EB',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 14,
+  passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#D1D5DB',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingRight: 8,
   },
-  otpHelperLabel: {
-    color: '#6B7280',
-    fontSize: 12,
-  },
-  otpHelperCode: {
+  passwordInput: {
+    flex: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
     color: '#111827',
-    fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: 2,
   },
-  otpHelperHint: {
-    color: '#9CA3AF',
+  eyeBtn: {
+    padding: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  eyeIcon: {
+    fontSize: 18,
+  },
+  emailNoticeBox: {
+    backgroundColor: '#F0F9FF',
+    borderColor: '#BAE6FD',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 16,
+  },
+  emailNoticeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+    gap: 6,
+  },
+  emailNoticeIcon: {
+    fontSize: 16,
+  },
+  emailNoticeTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#0369A1',
+  },
+  emailNoticeText: {
+    fontSize: 12,
+    color: '#0C4A6E',
+    marginBottom: 4,
+  },
+  emailNoticeTarget: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#0284C7',
+    marginBottom: 4,
+  },
+  emailNoticeSubtext: {
     fontSize: 11,
+    color: '#64748B',
   },
   otpInput: {
     textAlign: 'center',
