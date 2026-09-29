@@ -6,7 +6,7 @@ import { setupSocketHandlers } from './sockets/chatSocket';
 
 dotenv.config();
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
 const server = http.createServer(app);
 
 // Socket.io initialization
@@ -23,8 +23,8 @@ import { ensureSeedData } from './utils/autoSeed';
 import { startKeepAlive } from './utils/keepAlive';
 
 if (process.env.NODE_ENV !== 'test') {
-  server.listen(PORT, async () => {
-    console.log(`🚀 CampusConnect server running on port ${PORT}`);
+  server.listen(PORT, '0.0.0.0', async () => {
+    console.log(`🚀 CampusConnect server running on port ${PORT} (0.0.0.0)`);
     await ensureSeedData();
     startKeepAlive();
   });
