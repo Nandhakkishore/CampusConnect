@@ -25,20 +25,28 @@ app.get('/', (req, res) => {
   });
 });
 
-// Base health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+// Health check endpoints
+const healthHandler = (req: express.Request, res: express.Response) => {
+  res.json({
+    status: 'ok',
+    name: 'CampusConnect Backend API',
+    database: 'Neon PostgreSQL',
+    timestamp: new Date().toISOString(),
+  });
+};
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/profiles', profileRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api', teamRoutes);
-app.use('/api/chat', chatRoutes);
-app.use('/api/gigs', gigRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/upload', uploadRoutes);
+app.get('/health', healthHandler);
+app.get('/api/health', healthHandler);
+
+// API Routes (supports both /api/* and direct routes)
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/profiles', '/profiles'], profileRoutes);
+app.use(['/api/projects', '/projects'], projectRoutes);
+app.use(['/api', '/'], teamRoutes);
+app.use(['/api/chat', '/chat'], chatRoutes);
+app.use(['/api/gigs', '/gigs'], gigRoutes);
+app.use(['/api/notifications', '/notifications'], notificationRoutes);
+app.use(['/api/upload', '/upload'], uploadRoutes);
 
 // Error Middleware
 app.use(errorHandler);
