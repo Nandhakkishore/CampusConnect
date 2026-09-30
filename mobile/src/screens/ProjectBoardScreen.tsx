@@ -77,22 +77,38 @@ export const ProjectBoardScreen = ({ navigation }: any) => {
     }
   };
 
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case 'RECRUITING':
+        return 'success';
+      case 'IN_PROGRESS':
+        return 'info';
+      case 'COMPLETED':
+        return 'secondary';
+      default:
+        return 'accent';
+    }
+  };
+
   const renderProjectItem = ({ item }: { item: Project }) => {
     const authorName = item.owner?.profile?.fullName || 'Campus Contributor';
     const upvoteCount = item._count?.upvotes || 0;
     const commentCount = item._count?.comments || 0;
+    const applicantCount = item._count?.applications || 0;
 
     return (
       <TouchableOpacity
         style={styles.card}
-        activeOpacity={0.85}
+        activeOpacity={0.88}
         onPress={() => navigation.navigate('ProjectDetail', { projectId: item.id })}
       >
         <View style={styles.cardHeader}>
           <View style={styles.authorBadge}>
-            <Text style={styles.authorAvatar}>
-              {authorName.charAt(0).toUpperCase()}
-            </Text>
+            <View style={styles.authorAvatarContainer}>
+              <Text style={styles.authorAvatar}>
+                {authorName.charAt(0).toUpperCase()}
+              </Text>
+            </View>
             <View>
               <Text style={styles.authorName}>{authorName}</Text>
               <Text style={styles.branchText}>
@@ -102,7 +118,8 @@ export const ProjectBoardScreen = ({ navigation }: any) => {
           </View>
           <Badge
             label={item.status}
-            variant={item.status === 'RECRUITING' ? 'primary' : 'neutral'}
+            variant={getStatusVariant(item.status) as any}
+            showDot={true}
           />
         </View>
 
@@ -121,14 +138,22 @@ export const ProjectBoardScreen = ({ navigation }: any) => {
           <TouchableOpacity
             style={[styles.actionBtn, item.hasUpvoted && styles.upvotedBtn]}
             onPress={() => handleUpvote(item.id)}
+            activeOpacity={0.8}
           >
             <Text style={[styles.actionText, item.hasUpvoted && styles.upvotedText]}>
-              ▲ {upvoteCount} Upvotes
+              {item.hasUpvoted ? '▲ Upvoted' : '△ Upvote'} ({upvoteCount})
             </Text>
           </TouchableOpacity>
 
           <View style={styles.statsContainer}>
-            <Text style={styles.statsText}>💬 {commentCount} Comments</Text>
+            <View style={styles.statPill}>
+              <Text style={styles.statsText}>💬 {commentCount}</Text>
+            </View>
+            {applicantCount > 0 && (
+              <View style={[styles.statPill, { marginLeft: 8 }]}>
+                <Text style={styles.statsText}>👥 {applicantCount}</Text>
+              </View>
+            )}
           </View>
         </View>
       </TouchableOpacity>
@@ -138,23 +163,35 @@ export const ProjectBoardScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.screenTitle}>Projects & Ideas</Text>
+        <View>
+          <Text style={styles.screenTitle}>Explore Ideas</Text>
+          <Text style={styles.screenSubtitle}>Pitch, recruit & build with peers</Text>
+        </View>
         <TouchableOpacity
           style={styles.createBtn}
           onPress={() => navigation.navigate('CreateProject')}
+          activeOpacity={0.85}
         >
-          <Text style={styles.createBtnText}>+ New Idea</Text>
+          <Text style={styles.createBtnText}>+ Pitch Idea</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search by title, tech stack, idea..."
-          placeholderTextColor={colors.textDim}
-          value={search}
-          onChangeText={setSearch}
-        />
+        <View style={styles.searchBox}>
+          <Text style={styles.searchIcon}>🔍</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search projects, skills, tech stacks..."
+            placeholderTextColor={colors.textDim}
+            value={search}
+            onChangeText={setSearch}
+          />
+          {search ? (
+            <TouchableOpacity onPress={() => setSearch('')} style={styles.clearBtn}>
+              <Text style={styles.clearBtnText}>✕</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </View>
 
       <View style={styles.filterScroll}>
@@ -170,6 +207,7 @@ export const ProjectBoardScreen = ({ navigation }: any) => {
                 selectedTech === item && styles.chipActive,
               ]}
               onPress={() => setSelectedTech(item)}
+              activeOpacity={0.8}
             >
               <Text
                 style={[
@@ -186,9 +224,9 @@ export const ProjectBoardScreen = ({ navigation }: any) => {
 
       {loading ? (
         <View style={styles.skeletonContainer}>
-          <Skeleton height={140} style={{ borderRadius: 12 }} />
-          <Skeleton height={140} style={{ borderRadius: 12 }} />
-          <Skeleton height={140} style={{ borderRadius: 12 }} />
+          <Skeleton height={140} style={{ borderRadius: 16, marginBottom: 14 }} />
+          <Skeleton height={140} style={{ borderRadius: 16, marginBottom: 14 }} />
+          <Skeleton height={140} style={{ borderRadius: 16 }} />
         </View>
       ) : (
         <FlatList
@@ -231,18 +269,29 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 12,
+    paddingBottom: 10,
   },
   screenTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
     color: colors.text,
+    letterSpacing: -0.4,
+  },
+  screenSubtitle: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   createBtn: {
     backgroundColor: colors.primary,
     paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingVertical: 9,
     borderRadius: 20,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
   createBtnText: {
     color: '#FFFFFF',
@@ -251,17 +300,40 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     paddingHorizontal: 20,
-    marginBottom: 12,
+    marginBottom: 10,
   },
-  searchInput: {
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 14,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  searchIcon: {
+    fontSize: 14,
+    marginRight: 8,
+    opacity: 0.6,
+  },
+  searchInput: {
+    flex: 1,
     paddingVertical: 10,
     color: colors.text,
     fontSize: 14,
+  },
+  clearBtn: {
+    padding: 6,
+  },
+  clearBtnText: {
+    color: colors.textDim,
+    fontSize: 12,
+    fontWeight: '700',
   },
   filterScroll: {
     paddingLeft: 20,
@@ -270,16 +342,16 @@ const styles = StyleSheet.create({
   },
   chip: {
     paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 16,
+    paddingVertical: 7,
+    borderRadius: 20,
     backgroundColor: colors.surface,
     marginRight: 8,
     borderWidth: 1,
     borderColor: colors.border,
   },
   chipActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: colors.text,
+    borderColor: colors.text,
   },
   chipText: {
     color: colors.textMuted,
@@ -300,30 +372,42 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 14,
-    padding: 16,
+    borderRadius: 16,
+    padding: 18,
     marginBottom: 16,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   authorBadge: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    marginRight: 8,
+  },
+  authorAvatarContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.secondaryLight,
+    borderWidth: 1,
+    borderColor: 'rgba(79, 70, 229, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
   },
   authorAvatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.secondary,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    lineHeight: 34,
-    fontWeight: '700',
-    marginRight: 10,
+    color: colors.secondary,
+    fontWeight: '800',
+    fontSize: 15,
   },
   authorName: {
     color: colors.text,
@@ -332,46 +416,51 @@ const styles = StyleSheet.create({
   },
   branchText: {
     color: colors.textDim,
-    fontSize: 12,
+    fontSize: 11,
+    marginTop: 1,
   },
   title: {
     fontSize: 18,
     fontWeight: '800',
     color: colors.text,
     marginBottom: 6,
+    letterSpacing: -0.3,
   },
   summary: {
     fontSize: 14,
     color: colors.textMuted,
-    lineHeight: 20,
+    lineHeight: 21,
     marginBottom: 12,
   },
   techStackRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   cardFooter: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: colors.surfaceLight,
     paddingTop: 12,
   },
   actionBtn: {
     backgroundColor: colors.surfaceLight,
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    paddingVertical: 7,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   upvotedBtn: {
     backgroundColor: colors.primaryLight,
+    borderColor: 'rgba(5, 150, 105, 0.3)',
   },
   actionText: {
     color: colors.textMuted,
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
   },
   upvotedText: {
     color: colors.primary,
@@ -380,8 +469,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  statPill: {
+    backgroundColor: colors.surfaceLight,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
   statsText: {
-    color: colors.textDim,
-    fontSize: 13,
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
   },
 });
+

@@ -142,8 +142,13 @@ export const ProjectDetailScreen = ({ route, navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.statusRow}>
-          <Badge label={project.status} variant={project.status === 'RECRUITING' ? 'primary' : 'neutral'} size="md" />
-          <Text style={styles.dateText}>{new Date(project.createdAt).toLocaleDateString()}</Text>
+          <Badge
+            label={project.status}
+            variant={project.status === 'RECRUITING' ? 'success' : 'secondary'}
+            size="md"
+            showDot={true}
+          />
+          <Text style={styles.dateText}>Posted {new Date(project.createdAt).toLocaleDateString()}</Text>
         </View>
 
         <Text style={styles.title}>{project.title}</Text>
@@ -153,9 +158,9 @@ export const ProjectDetailScreen = ({ route, navigation }: any) => {
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{authorName.charAt(0).toUpperCase()}</Text>
           </View>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={styles.authorName}>{authorName}</Text>
-            <Text style={styles.authorBranch}>{project.branch || 'Campus Student'}</Text>
+            <Text style={styles.authorBranch}>{project.branch || 'Campus Student'} • Project Lead</Text>
           </View>
         </View>
 
@@ -163,7 +168,7 @@ export const ProjectDetailScreen = ({ route, navigation }: any) => {
           <Text style={styles.cardTitle}>Project Overview & Goals</Text>
           <Text style={styles.descriptionText}>{project.description}</Text>
 
-          <Text style={[styles.cardTitle, { marginTop: 16 }]}>Required Tech Stack</Text>
+          <Text style={[styles.cardTitle, { marginTop: 18 }]}>Required Tech Stack & Skills</Text>
           <View style={styles.tagRow}>
             {project.techStack.map((tech, idx) => (
               <Badge key={idx} label={tech} variant="secondary" size="md" />
@@ -173,13 +178,21 @@ export const ProjectDetailScreen = ({ route, navigation }: any) => {
           {project.repositoryUrl || project.demoUrl ? (
             <View style={styles.linkContainer}>
               {project.repositoryUrl ? (
-                <TouchableOpacity onPress={() => Linking.openURL(project.repositoryUrl!)}>
-                  <Text style={styles.linkText}>🔗 Repository</Text>
+                <TouchableOpacity
+                  style={styles.linkChip}
+                  onPress={() => Linking.openURL(project.repositoryUrl!)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.linkText}>🔗 GitHub Repo</Text>
                 </TouchableOpacity>
               ) : null}
               {project.demoUrl ? (
-                <TouchableOpacity onPress={() => Linking.openURL(project.demoUrl!)}>
-                  <Text style={styles.linkText}>🌐 Live Prototype</Text>
+                <TouchableOpacity
+                  style={styles.linkChip}
+                  onPress={() => Linking.openURL(project.demoUrl!)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.linkText}>🌐 Live Demo</Text>
                 </TouchableOpacity>
               ) : null}
             </View>
@@ -190,9 +203,10 @@ export const ProjectDetailScreen = ({ route, navigation }: any) => {
           <TouchableOpacity
             style={[styles.upvoteButton, project.hasUpvoted && styles.upvotedButton]}
             onPress={handleUpvote}
+            activeOpacity={0.82}
           >
             <Text style={[styles.upvoteText, project.hasUpvoted && styles.upvotedText]}>
-              ▲ Upvote ({project._count?.upvotes || 0})
+              {project.hasUpvoted ? '▲ Upvoted' : '△ Upvote'} ({project._count?.upvotes || 0})
             </Text>
           </TouchableOpacity>
 
@@ -389,15 +403,23 @@ const styles = StyleSheet.create({
   linkContainer: {
     marginTop: 16,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: 12,
+    borderTopColor: colors.surfaceLight,
+    paddingTop: 14,
     flexDirection: 'row',
-    gap: 16,
+    gap: 12,
+  },
+  linkChip: {
+    backgroundColor: colors.surfaceLight,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
   },
   linkText: {
     color: colors.primary,
-    fontWeight: '600',
-    fontSize: 14,
+    fontWeight: '700',
+    fontSize: 13,
   },
   actionsBar: {
     flexDirection: 'row',

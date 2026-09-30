@@ -161,6 +161,7 @@ export const ChatRoomScreen = ({ route, navigation }: any) => {
 
         {isTyping && (
           <View style={styles.typingIndicatorContainer}>
+            <View style={styles.typingDot} />
             <Text style={styles.typingText}>Someone is typing...</Text>
           </View>
         )}
@@ -168,14 +169,19 @@ export const ChatRoomScreen = ({ route, navigation }: any) => {
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Type a message..."
+            placeholder="Type a message to your team..."
             placeholderTextColor={colors.textDim}
             value={inputText}
             onChangeText={handleTextChange}
             multiline
           />
-          <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-            <Text style={styles.sendButtonText}>Send</Text>
+          <TouchableOpacity
+            style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+            onPress={handleSend}
+            disabled={!inputText.trim()}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.sendButtonText}>Send 🚀</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -190,14 +196,17 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+    paddingBottom: 24,
   },
   systemBubble: {
     alignSelf: 'center',
     backgroundColor: colors.surfaceLight,
+    borderColor: colors.border,
+    borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 6,
-    borderRadius: 12,
-    marginVertical: 10,
+    borderRadius: 20,
+    marginVertical: 12,
   },
   systemText: {
     color: colors.textMuted,
@@ -215,29 +224,34 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   bubble: {
-    maxWidth: '80%',
-    borderRadius: 16,
+    maxWidth: '78%',
+    borderRadius: 18,
     paddingHorizontal: 14,
     paddingVertical: 10,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
   },
   myBubble: {
     backgroundColor: colors.primary,
-    borderBottomRightRadius: 2,
+    borderBottomRightRadius: 4,
   },
   theirBubble: {
     backgroundColor: colors.card,
     borderColor: colors.border,
     borderWidth: 1,
-    borderBottomLeftRadius: 2,
+    borderBottomLeftRadius: 4,
   },
   senderName: {
     color: colors.secondary,
     fontSize: 11,
-    fontWeight: '700',
-    marginBottom: 2,
+    fontWeight: '800',
+    marginBottom: 3,
   },
   messageText: {
-    fontSize: 15,
+    fontSize: 14.5,
     lineHeight: 20,
   },
   myMessageText: {
@@ -252,36 +266,47 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   myTime: {
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: 'rgba(255, 255, 255, 0.75)',
   },
   theirTime: {
     color: colors.textDim,
   },
   typingIndicatorContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 6,
+    gap: 6,
+  },
+  typingDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.primary,
   },
   typingText: {
     color: colors.primary,
     fontSize: 12,
     fontStyle: 'italic',
+    fontWeight: '600',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     backgroundColor: colors.surface,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
   input: {
     flex: 1,
-    backgroundColor: colors.inputBg,
+    backgroundColor: colors.surfaceLight,
     borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: 22,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 9,
     color: colors.text,
     fontSize: 14,
     maxHeight: 100,
@@ -293,9 +318,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginLeft: 8,
   },
+  sendButtonDisabled: {
+    opacity: 0.5,
+  },
   sendButtonText: {
     color: '#FFFFFF',
     fontWeight: '700',
-    fontSize: 14,
+    fontSize: 13,
   },
 });

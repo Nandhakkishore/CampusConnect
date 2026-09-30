@@ -59,7 +59,7 @@ export const ChatListScreen = ({ navigation }: any) => {
     return (
       <TouchableOpacity
         style={styles.card}
-        activeOpacity={0.8}
+        activeOpacity={0.82}
         onPress={() =>
           navigation.navigate('ChatRoom', {
             conversationId: item.id,
@@ -68,8 +68,10 @@ export const ChatListScreen = ({ navigation }: any) => {
           })
         }
       >
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{isTeam ? '👥' : title.charAt(0).toUpperCase()}</Text>
+        <View style={[styles.avatar, isTeam && styles.teamAvatar]}>
+          <Text style={[styles.avatarText, isTeam && styles.teamAvatarText]}>
+            {isTeam ? '👥' : title.charAt(0).toUpperCase()}
+          </Text>
         </View>
 
         <View style={styles.content}>
@@ -91,7 +93,11 @@ export const ChatListScreen = ({ navigation }: any) => {
             <Text style={styles.previewText} numberOfLines={1}>
               {lastMsgText}
             </Text>
-            {isTeam && <Badge label="Team Group" variant="secondary" />}
+            {isTeam ? (
+              <Badge label="Team Group" variant="secondary" />
+            ) : (
+              <Badge label="Direct" variant="neutral" />
+            )}
           </View>
         </View>
       </TouchableOpacity>
@@ -101,14 +107,15 @@ export const ChatListScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.screenTitle}>Chat & Messages</Text>
+        <Text style={styles.screenTitle}>Messages</Text>
+        <Text style={styles.screenSubtitle}>Real-time team discussions & peer chats</Text>
       </View>
 
       {loading ? (
         <View style={{ padding: 20 }}>
-          <Skeleton height={70} style={{ borderRadius: 12 }} />
-          <Skeleton height={70} style={{ borderRadius: 12 }} />
-          <Skeleton height={70} style={{ borderRadius: 12 }} />
+          <Skeleton height={74} style={{ borderRadius: 16, marginBottom: 12 }} />
+          <Skeleton height={74} style={{ borderRadius: 16, marginBottom: 12 }} />
+          <Skeleton height={74} style={{ borderRadius: 16 }} />
         </View>
       ) : (
         <FlatList
@@ -146,15 +153,22 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 8,
+    paddingBottom: 10,
   },
   screenTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
     color: colors.text,
+    letterSpacing: -0.4,
+  },
+  screenSubtitle: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   listContent: {
     padding: 20,
+    paddingTop: 8,
   },
   card: {
     flexDirection: 'row',
@@ -162,23 +176,37 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 14,
     marginBottom: 12,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
   avatar: {
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: colors.primaryLight,
+    borderColor: 'rgba(5, 150, 105, 0.25)',
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
+  teamAvatar: {
+    backgroundColor: colors.secondaryLight,
+    borderColor: 'rgba(79, 70, 229, 0.25)',
+  },
   avatarText: {
-    fontSize: 18,
-    color: colors.primary,
-    fontWeight: '700',
+    fontSize: 17,
+    color: colors.primaryDark,
+    fontWeight: '800',
+  },
+  teamAvatarText: {
+    fontSize: 17,
   },
   content: {
     flex: 1,
@@ -190,15 +218,17 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   title: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
     color: colors.text,
     flex: 1,
     marginRight: 8,
+    letterSpacing: -0.2,
   },
   time: {
     fontSize: 11,
     color: colors.textDim,
+    fontWeight: '500',
   },
   bottomRow: {
     flexDirection: 'row',
@@ -212,3 +242,4 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
 });
+

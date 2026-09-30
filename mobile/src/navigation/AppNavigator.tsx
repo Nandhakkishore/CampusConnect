@@ -25,12 +25,35 @@ import { NotificationsScreen } from '../screens/NotificationsScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+const HeaderBrand = () => (
+  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+    <Text style={{ fontSize: 19, fontWeight: '800', color: colors.text, letterSpacing: -0.4 }}>
+      Campus<Text style={{ color: colors.primary }}>Connect</Text>
+    </Text>
+    <View
+      style={{
+        backgroundColor: colors.primaryLight,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 6,
+        marginLeft: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(5, 150, 105, 0.25)',
+      }}
+    >
+      <Text style={{ color: colors.primary, fontSize: 10, fontWeight: '800' }}>HUB</Text>
+    </View>
+  </View>
+);
+
 const SignOutButton = () => {
   const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
+  const userInitials = (user?.profile?.fullName?.charAt(0) || user?.email?.charAt(0) || 'U').toUpperCase();
 
   const handleSignOut = () => {
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      if (window.confirm('Are you sure you want to sign out?')) {
+      if (window.confirm('Sign out of your CampusConnect session?')) {
         logout();
       }
     } else {
@@ -39,43 +62,67 @@ const SignOutButton = () => {
   };
 
   return (
-    <TouchableOpacity
-      onPress={handleSignOut}
-      style={{
-        backgroundColor: 'rgba(239, 68, 68, 0.15)',
-        borderColor: '#EF4444',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        marginRight: 8,
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}
-      activeOpacity={0.7}
-    >
-      <Text style={{ color: '#EF4444', fontWeight: '700', fontSize: 12 }}>
-        Sign Out 🚪
-      </Text>
-    </TouchableOpacity>
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 12 }}>
+      <TouchableOpacity
+        onPress={handleSignOut}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: colors.surfaceLight,
+          borderColor: colors.border,
+          borderWidth: 1,
+          borderRadius: 20,
+          paddingVertical: 4,
+          paddingHorizontal: 10,
+          gap: 6,
+        }}
+        activeOpacity={0.75}
+      >
+        <View
+          style={{
+            width: 22,
+            height: 22,
+            borderRadius: 11,
+            backgroundColor: colors.primary,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '800' }}>
+            {userInitials}
+          </Text>
+        </View>
+        <Text style={{ color: colors.textMuted, fontWeight: '600', fontSize: 12 }}>
+          Sign Out
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 };
-
 
 const TabIcon = ({ label, focused }: { label: string; focused: boolean }) => {
   let icon = '💡';
   if (label === 'Gigs') icon = '💼';
   if (label === 'Chat') icon = '💬';
-  if (label === 'Notifications') icon = '🔔';
+  if (label === 'Alerts') icon = '🔔';
   if (label === 'Profile') icon = '👤';
 
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontSize: 18, opacity: focused ? 1 : 0.6 }}>{icon}</Text>
+    <View
+      style={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 4,
+        paddingHorizontal: 12,
+        borderRadius: 16,
+        backgroundColor: focused ? colors.primaryLight : 'transparent',
+      }}
+    >
+      <Text style={{ fontSize: 17, opacity: focused ? 1 : 0.65 }}>{icon}</Text>
       <Text
         style={{
           fontSize: 10,
-          fontWeight: focused ? '700' : '400',
+          fontWeight: focused ? '800' : '500',
           color: focused ? colors.primary : colors.textDim,
           marginTop: 2,
         }}
@@ -96,9 +143,14 @@ const MainTabNavigator = () => {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: 60,
+          height: 64,
           paddingBottom: 6,
           paddingTop: 6,
+          elevation: 8,
+          shadowColor: '#000000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.04,
+          shadowRadius: 6,
         },
       }}
     >
@@ -127,7 +179,7 @@ const MainTabNavigator = () => {
         name="NotificationsTab"
         component={NotificationsScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon label="Notifications" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon label="Alerts" focused={focused} />,
         }}
       />
       <Tab.Screen
@@ -175,11 +227,10 @@ export const AppNavigator = () => {
               component={MainTabNavigator}
               options={{
                 headerShown: true,
-                headerTitle: 'CampusConnect 🚀',
-                headerTitleStyle: {
-                  color: colors.primary,
-                  fontWeight: '800',
-                  fontSize: 20,
+                headerTitle: () => <HeaderBrand />,
+                headerShadowVisible: false,
+                headerStyle: {
+                  backgroundColor: colors.surface,
                 },
                 headerRight: () => <SignOutButton />,
               }}

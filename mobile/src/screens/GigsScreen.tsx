@@ -89,7 +89,7 @@ export const GigsScreen = ({ navigation }: any) => {
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
-          <View style={{ flex: 1, marginRight: 8 }}>
+          <View style={{ flex: 1, marginRight: 10 }}>
             <Text style={styles.title}>{item.title}</Text>
             <Text style={styles.creatorText}>
               Posted by {creatorName} • {new Date(item.createdAt).toLocaleDateString()}
@@ -104,10 +104,10 @@ export const GigsScreen = ({ navigation }: any) => {
 
         <View style={styles.pillsRow}>
           <View style={styles.stipendPill}>
-            <Text style={styles.stipendText}>💰 {item.stipend || 'Experience'}</Text>
+            <Text style={styles.stipendText}>💰 {item.stipend || 'Experience / Equity'}</Text>
           </View>
           <View style={styles.timePill}>
-            <Text style={styles.timeText}>⏱️ {item.estimatedTime || '1 week'}</Text>
+            <Text style={styles.timeText}>⏱️ {item.estimatedTime || 'Flexible'}</Text>
           </View>
         </View>
 
@@ -119,15 +119,17 @@ export const GigsScreen = ({ navigation }: any) => {
 
         <View style={styles.cardFooter}>
           <Text style={styles.appCountText}>
-            {item._count?.applications || 0} applicants
+            👥 {item._count?.applications || 0} interested students
           </Text>
 
           {item.hasApplied ? (
-            <Badge label="Applied ✓" variant="primary" size="md" />
+            <Badge label="Applied ✓" variant="success" size="md" showDot={true} />
           ) : (
             <Button
-              title="Apply for Gig"
+              title="Apply Now"
               onPress={() => setSelectedGig(item)}
+              size="sm"
+              variant="secondary"
               style={styles.applyBtn}
             />
           )}
@@ -139,23 +141,35 @@ export const GigsScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.screenTitle}>Internal Campus Gigs</Text>
+        <View>
+          <Text style={styles.screenTitle}>Campus Gigs</Text>
+          <Text style={styles.screenSubtitle}>Micro-tasks, bounties & freelance assistance</Text>
+        </View>
         <TouchableOpacity
           style={styles.createBtn}
           onPress={() => navigation.navigate('CreateGig')}
+          activeOpacity={0.85}
         >
           <Text style={styles.createBtnText}>+ Post Gig</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search mini gigs, tasks, coding assistance..."
-          placeholderTextColor={colors.textDim}
-          value={search}
-          onChangeText={setSearch}
-        />
+        <View style={styles.searchBox}>
+          <Text style={styles.searchIcon}>🔍</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search bounties, design tasks, coding help..."
+            placeholderTextColor={colors.textDim}
+            value={search}
+            onChangeText={setSearch}
+          />
+          {search ? (
+            <TouchableOpacity onPress={() => setSearch('')} style={styles.clearBtn}>
+              <Text style={styles.clearBtnText}>✕</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </View>
 
       <View style={styles.filterScroll}>
@@ -171,6 +185,7 @@ export const GigsScreen = ({ navigation }: any) => {
                 selectedCategory === item && styles.chipActive,
               ]}
               onPress={() => setSelectedCategory(item)}
+              activeOpacity={0.8}
             >
               <Text
                 style={[
@@ -187,8 +202,8 @@ export const GigsScreen = ({ navigation }: any) => {
 
       {loading ? (
         <View style={{ padding: 20 }}>
-          <Skeleton height={140} style={{ borderRadius: 12 }} />
-          <Skeleton height={140} style={{ borderRadius: 12 }} />
+          <Skeleton height={140} style={{ borderRadius: 16, marginBottom: 14 }} />
+          <Skeleton height={140} style={{ borderRadius: 16 }} />
         </View>
       ) : (
         <FlatList
@@ -203,12 +218,12 @@ export const GigsScreen = ({ navigation }: any) => {
                 setRefreshing(true);
                 fetchGigs();
               }}
-              tintColor={colors.primary}
+              tintColor={colors.secondary}
             />
           }
           ListEmptyComponent={
             <EmptyState
-              title="No Internal Gigs Available"
+              title="No Campus Gigs Available"
               description="Have a quick design task, bug fix, or writing gig? Post it for campus peers!"
               actionTitle="Post First Gig"
               onAction={() => navigation.navigate('CreateGig')}
@@ -218,24 +233,38 @@ export const GigsScreen = ({ navigation }: any) => {
       )}
 
       {/* Gig Apply Modal */}
-      <Modal visible={!!selectedGig} animationType="slide" transparent>
+      <Modal visible={!!selectedGig} animationType="fade" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Apply to Gig</Text>
-            <Text style={styles.modalSubtitle}>"{selectedGig?.title}"</Text>
+            <View style={styles.modalHeaderRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.modalTitle}>Apply for Gig</Text>
+                <Text style={styles.modalSubtitle} numberOfLines={1}>
+                  "{selectedGig?.title}"
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setSelectedGig(null)}
+                style={styles.modalCloseBtn}
+              >
+                <Text style={styles.modalCloseText}>✕</Text>
+              </TouchableOpacity>
+            </View>
 
+            <Text style={styles.fieldLabel}>Your Quick Pitch</Text>
             <TextInput
-              style={[styles.modalInput, { height: 80, textAlignVertical: 'top' }]}
-              placeholder="Why are you a good fit for this gig?"
+              style={[styles.modalInput, { height: 90, textAlignVertical: 'top' }]}
+              placeholder="Why are you suitable? Mention relevant skills or prior coursework..."
               placeholderTextColor={colors.textDim}
               value={pitchNote}
               onChangeText={setPitchNote}
               multiline
             />
 
+            <Text style={styles.fieldLabel}>Portfolio or GitHub link (optional)</Text>
             <TextInput
               style={[styles.modalInput, { marginBottom: 20 }]}
-              placeholder="Portfolio / GitHub sample link (optional)"
+              placeholder="https://github.com/username or drive link"
               placeholderTextColor={colors.textDim}
               value={portfolioLink}
               onChangeText={setPortfolioLink}
@@ -250,9 +279,10 @@ export const GigsScreen = ({ navigation }: any) => {
                 style={{ flex: 1, marginRight: 10 }}
               />
               <Button
-                title="Submit Gig Application"
+                title="Submit Application"
                 onPress={handleApplyGig}
                 loading={applying}
+                variant="secondary"
                 style={{ flex: 1.5 }}
               />
             </View>
@@ -274,18 +304,29 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 12,
+    paddingBottom: 10,
   },
   screenTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
     color: colors.text,
+    letterSpacing: -0.4,
+  },
+  screenSubtitle: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   createBtn: {
     backgroundColor: colors.secondary,
     paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingVertical: 9,
     borderRadius: 20,
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
   createBtnText: {
     color: '#FFFFFF',
@@ -294,17 +335,40 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     paddingHorizontal: 20,
-    marginBottom: 12,
+    marginBottom: 10,
   },
-  searchInput: {
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 14,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  searchIcon: {
+    fontSize: 14,
+    marginRight: 8,
+    opacity: 0.6,
+  },
+  searchInput: {
+    flex: 1,
     paddingVertical: 10,
     color: colors.text,
     fontSize: 14,
+  },
+  clearBtn: {
+    padding: 6,
+  },
+  clearBtnText: {
+    color: colors.textDim,
+    fontSize: 12,
+    fontWeight: '700',
   },
   filterScroll: {
     paddingLeft: 20,
@@ -313,8 +377,8 @@ const styles = StyleSheet.create({
   },
   chip: {
     paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 16,
+    paddingVertical: 7,
+    borderRadius: 20,
     backgroundColor: colors.surface,
     marginRight: 8,
     borderWidth: 1,
@@ -340,20 +404,26 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 14,
-    padding: 16,
+    borderRadius: 16,
+    padding: 18,
     marginBottom: 16,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   title: {
     fontSize: 17,
     fontWeight: '800',
     color: colors.text,
+    letterSpacing: -0.3,
   },
   creatorText: {
     color: colors.textDim,
@@ -368,14 +438,16 @@ const styles = StyleSheet.create({
   },
   pillsRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
     marginBottom: 10,
   },
   stipendPill: {
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    borderColor: 'rgba(245, 158, 11, 0.25)',
+    borderWidth: 1,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 10,
+    borderRadius: 8,
   },
   stipendText: {
     color: colors.accent,
@@ -384,9 +456,11 @@ const styles = StyleSheet.create({
   },
   timePill: {
     backgroundColor: colors.surfaceLight,
+    borderColor: colors.border,
+    borderWidth: 1,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 10,
+    borderRadius: 8,
   },
   timeText: {
     color: colors.textMuted,
@@ -403,27 +477,42 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: colors.surfaceLight,
     paddingTop: 12,
   },
   appCountText: {
     color: colors.textDim,
-    fontSize: 13,
+    fontSize: 12,
+    fontWeight: '500',
   },
   applyBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: 7,
+    paddingHorizontal: 14,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(15, 23, 42, 0.55)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
   modalContent: {
     backgroundColor: colors.card,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderRadius: 20,
     padding: 24,
+    width: '100%',
+    maxWidth: 440,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  modalHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
   },
   modalTitle: {
     fontSize: 20,
@@ -431,24 +520,39 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   modalSubtitle: {
-    fontSize: 14,
-    color: colors.primary,
+    fontSize: 13,
+    color: colors.secondary,
     fontWeight: '700',
-    marginTop: 4,
-    marginBottom: 16,
+    marginTop: 2,
+  },
+  modalCloseBtn: {
+    padding: 4,
+  },
+  modalCloseText: {
+    fontSize: 16,
+    color: colors.textDim,
+    fontWeight: '700',
+  },
+  fieldLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.textMuted,
+    marginBottom: 6,
   },
   modalInput: {
     backgroundColor: colors.inputBg,
     borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
+    borderRadius: 10,
+    paddingHorizontal: 14,
     paddingVertical: 10,
     color: colors.text,
     fontSize: 14,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   modalActions: {
     flexDirection: 'row',
+    marginTop: 4,
   },
 });
+

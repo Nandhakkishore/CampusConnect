@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CampusConnect — Placement Drive Technical Report & Viva Guide</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+    @page {
+      size: A4;
+      margin: 16mm 14mm 16mm 14mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #0F172A;
+      background-color: #FFFFFF;
+      line-height: 1.55;
+      font-size: 13.5px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Cover / Header Section */
+    .header-banner {
+      background: linear-gradient(135deg, #064E3B 0%, #059669 50%, #4F46E5 100%);
+      color: #FFFFFF;
+      padding: 32px 28px;
+      border-radius: 14px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .badge-pill {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+    }
+
+    .header-banner h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .header-banner p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+      max-width: 90%;
+      line-height: 1.45;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .meta-item {
+      font-size: 11px;
+    }
+
+    .meta-item strong {
+      display: block;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .meta-item span {
+      font-weight: 700;
+      font-size: 12.5px;
+      color: #FFFFFF;
+    }
+
+    /* Section Styles */
+    h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -0.3px;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h3 {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #1E293B;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin-bottom: 10px;
+      color: #334155;
+    }
+
+    /* Pitch Boxes */
+    .pitch-card {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-left: 4px solid #059669;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    .pitch-card.technical {
+      border-left-color: #4F46E5;
+      background: #F5F3FF;
+    }
+
+    .pitch-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      color: #047857;
+    }
+
+    .pitch-card.technical .pitch-title {
+      color: #4338CA;
+    }
+
+    .pitch-content {
+      font-size: 13px;
+      color: #1E293B;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      margin-bottom: 18px;
+      font-size: 12px;
+      page-break-inside: auto;
+    }
+
+    tr {
+      page-break-inside: avoid;
+      page-break-after: auto;
+    }
+
+    th {
+      background: #0F172A;
+      color: #FFFFFF;
+      font-weight: 700;
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 11.5px;
+      letter-spacing: 0.3px;
+    }
+
+    th:first-child { border-top-left-radius: 6px; }
+    th:last-child { border-top-right-radius: 6px; }
+
+    td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #E2E8F0;
+      vertical-align: top;
+      color: #334155;
+    }
+
+    tr:nth-child(even) td {
+      background: #F8FAFC;
+    }
+
+    /* Code & Tags */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: #EEF2F6;
+      color: #0F172A;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 700;
+      margin-right: 4px;
+      margin-bottom: 2px;
+    }
+
+    .tag-emerald { background: rgba(5, 150, 105, 0.12); color: #064E3B; border: 1px solid rgba(5, 150, 105, 0.25); }
+    .tag-indigo { background: rgba(79, 70, 229, 0.10); color: #312E81; border: 1px solid rgba(79, 70, 229, 0.25); }
+    .tag-amber { background: rgba(217, 119, 6, 0.12); color: #92400E; border: 1px solid rgba(217, 119, 6, 0.25); }
+
+    /* Architecture Flow Box */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 14px 0;
+    }
+
+    .arch-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+
+    .arch-card h4 {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .arch-card p {
+      font-size: 11.5px;
+      color: #475569;
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    /* Q&A Section */
+    .qa-box {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      page-break-inside: avoid;
+    }
+
+    .qa-question {
+      font-weight: 800;
+      color: #0F172A;
+      font-size: 12.5px;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .qa-question .q-num {
+      background: #059669;
+      color: #FFFFFF;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .qa-answer {
+      font-size: 12px;
+      color: #334155;
+      line-height: 1.5;
+      padding-left: 26px;
+    }
+
+    /* Utility */
+    .avoid-break {
+      page-break-inside: avoid;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .highlight-box {
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: #166534;
+      margin-bottom: 12px;
+    }
+
+    .footer-note {
+      text-align: center;
+      font-size: 10.5px;
+      color: #94A3B8;
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 1px solid #E2E8F0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Banner -->
+  <div class="header-banner">
+    <div class="badge-pill">Technical Placement & Viva Report</div>
+    <h1>CampusConnect 🚀</h1>
+    <p>A Full-Stack, Real-Time Campus Collaboration, Innovation & Micro-Gigs Ecosystem Built with React Native, TypeScript, Node.js, Express, Neon PostgreSQL, and Socket.io.</p>
+    
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Domain</strong>
+        <span>Full-Stack & Mobile</span>
+      </div>
+      <div class="meta-item">
+        <strong>Architecture</strong>
+        <span>Client-Server + WebSockets</span>
+      </div>
+      <div class="meta-item">
+        <strong>Database</strong>
+        <span>PostgreSQL (Prisma ORM)</span>
+      </div>
+      <div class="meta-item">
+        <strong>Security</strong>
+        <span>JWT Rotation + 2FA OTP</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 1: Executive Elevator Pitches -->
+  <h2>1. Executive Summary & Placement Pitches</h2>
+
+  <div class="pitch-card">
+    <div class="pitch-title">30-Second Elevator Pitch (For HR & Intro Rounds)</div>
+    <div class="pitch-content">
+      "CampusConnect is a production-ready, real-time campus collaboration and talent ecosystem built with React Native, TypeScript, Node.js, Express, PostgreSQL via Prisma ORM, and Socket.io. It bridges academic silos by allowing students to pitch cross-departmental projects, recruit teammates via an automated application lifecycle, earn bounties through micro-gigs, and collaborate in real-time with WebSockets. Built with enterprise security including JWT token rotation, 2-Factor Authentication, and optimistic UI updates, it demonstrates modern full-stack systems engineering."
+    </div>
+  </div>
+
+  <div class="pitch-card technical">
+    <div class="pitch-title">2-Minute In-Depth Pitch (For Technical Rounds)</div>
+    <div class="pitch-content">
+      "In university campuses, engineering, design, and business students operate in silos. Finding complementary talent for hackathons, capstones, and startups requires relying on informal chat groups where messages get lost. CampusConnect solves this through a dedicated multi-module platform:
+      <br><br>
+      1. An <strong>Innovation Board</strong> supporting project discovery, tech-stack filtering, and concurrent upvoting.<br>
+      2. An <strong>Application & Team Formation Engine</strong> where accepting a team applicant automatically provisions a PostgreSQL Team record, updates roles, creates a private TEAM chat conversation, and broadcasts automated welcome messages and push notifications.<br>
+      3. An <strong>Internal Campus Gigs Marketplace</strong> for peer-to-peer micro-tasks and bounties with stipend negotiation.<br>
+      4. A <strong>Real-Time WebSocket Engine</strong> using Socket.io for typing indicators, bi-directional instant messaging, and live notifications.<br>
+      5. A <strong>Robust Security & Auth Architecture</strong> supporting 2-Factor Authentication (OTP verification), bcrypt password hashing, and short-lived JWT access tokens paired with rotated refresh tokens in PostgreSQL."
+    </div>
+  </div>
+
+  <!-- Section 2: Architecture & Tech Stack Justification -->
+  <h2>2. System Architecture & Tech Stack Justification</h2>
+
+  <div class="arch-grid">
+    <div class="arch-card">
+      <h4>📱 Client Layer</h4>
+      <p><strong>React Native (Expo) + TypeScript</strong>: Cross-platform codebase (iOS, Android, Web) with 60fps performance and zero type contract mismatches.</p>
+    </div>
+    <div class="arch-card">
+      <h4>⚙️ Application Layer</h4>
+      <p><strong>Node.js + Express</strong>: Non-blocking event-driven I/O with modular routing, Zod schema validation, and centralized error handling.</p>
+    </div>
+    <div class="arch-card">
+      <h4>⚡ Real-Time Engine</h4>
+      <p><strong>Socket.io</strong>: Bi-directional WebSocket communication with room-based pub/sub broadcasting and heartbeat pinging.</p>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 22%;">Technology</th>
+        <th style="width: 28%;">Role in Platform</th>
+        <th>Engineering Justification Over Alternatives</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>React Native (Expo)</strong></td>
+        <td>Cross-Platform Mobile App</td>
+        <td>Single codebase target for Android, iOS, and Web. Native rendering speed without writing duplicate Swift and Kotlin code.</td>
+      </tr>
+      <tr>
+        <td><strong>TypeScript</strong></td>
+        <td>Full-Stack Type Safety</td>
+        <td>Eliminates runtime errors and API contract drift between backend responses and mobile components.</td>
+      </tr>
+      <tr>
+        <td><strong>Zustand</strong></td>
+        <td>Client State Management</td>
+        <td>Sub-kilobyte footprint, zero-boilerplate hook-based store. Far simpler and faster than Redux with persistent storage support.</td>
+      </tr>
+      <tr>
+        <td><strong>Prisma 5 ORM</strong></td>
+        <td>Data Access Layer</td>
+        <td>Auto-generated type-safe queries, automatic migration management, and native protection against SQL injection.</td>
+      </tr>
+      <tr>
+        <td><strong>PostgreSQL (Neon)</strong></td>
+        <td>Relational Database</td>
+        <td>ACID compliance ensures data integrity across multi-table recruitment flows and compound unique constraints.</td>
+      </tr>
+      <tr>
+        <td><strong>Socket.io</strong></td>
+        <td>WebSockets & Events</td>
+        <td>Channel & room broadcasting (<code>conversation:${id}</code>) with automatic fallback to HTTP long-polling if campus firewalls block WS.</td>
+      </tr>
+      <tr>
+        <td><strong>JWT + Bcrypt + 2FA</strong></td>
+        <td>Authentication & Security</td>
+        <td>15-minute access tokens + 7-day database-backed refresh tokens with automatic token rotation and 6-digit OTP verification.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Page Break for Clean Layout -->
+  <div class="page-break"></div>
+
+  <!-- Section 3: UI/UX Modernization Summary -->
+  <h2>3. UI/UX Transformations & Design System</h2>
+
+  <div class="highlight-box">
+    <strong>Design Philosophy:</strong> Replaced flat styling with a modern slate-modern theme featuring curated HSL tokens, micro-shadows, responsive pill chips, live status indicators, and clean typography.
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Screen / Component</th>
+        <th style="width: 35%;">UI Enhancements Made</th>
+        <th>UX & Placement Walkthrough Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>App Navigation</strong><br><code>AppNavigator.tsx</code></td>
+        <td>Branded header with emerald HUB badge; interactive user profile chip with initials; floating bottom tab bar with active pill indicators.</td>
+        <td>Demonstrates mastery of mobile layout geometry and clean navigation flow hierarchy.</td>
+      </tr>
+      <tr>
+        <td><strong>Innovation Board</strong><br><code>ProjectBoardScreen.tsx</code></td>
+        <td>Search box with icon & clear button; tech filter chips; author avatar pills; live pulsing dot status badges (<code>🟢 Recruiting</code>); optimistic upvote pills.</td>
+        <td>Exhibits optimistic UI rendering and complex list virtualization with instant user feedback.</td>
+      </tr>
+      <tr>
+        <td><strong>Campus Gigs</strong><br><code>GigsScreen.tsx</code></td>
+        <td>Category filter pills with emojis (💻, ⚙️, 🎨); gold/amber stipend badges; duration estimates; clean application modal overlay.</td>
+        <td>Demonstrates responsive dialog styling, multi-filter querying, and marketplace ergonomics.</td>
+      </tr>
+      <tr>
+        <td><strong>Chat & Messages</strong><br><code>ChatListScreen.tsx</code></td>
+        <td>Team group vs direct chat avatar icons; message preview snippets; asymmetric speech bubbles (chat-tail effect); typing indicator dot.</td>
+        <td>Shows real-time chat UX design matching Slack/WhatsApp campus community standards.</td>
+      </tr>
+      <tr>
+        <td><strong>Alerts & Activity</strong><br><code>NotificationsScreen.tsx</code></td>
+        <td>Categorized event badges (🚀, 💬, 🤝, 🔔); soft light-emerald unread highlight; one-tap "Mark all read" header action.</td>
+        <td>Proves understanding of event-driven notification systems with unread state tracking.</td>
+      </tr>
+      <tr>
+        <td><strong>Student Portfolio</strong><br><code>ProfileScreen.tsx</code></td>
+        <td>Hero card with verified student badge; academic metrics bar (skills count, interests, grad year); interactive GitHub & Portfolio link cards.</td>
+        <td>Showcases student resume & skill representation within a university network.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 4: Module-by-Module & Function-by-Function Reference -->
+  <h2>4. Detailed Module & Function Reference</h2>
+
+  <h3>Module 1: Authentication, Security & 2FA</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 24%;">Function</th>
+        <th style="width: 26%;">Route & Method</th>
+        <th style="width: 25%;">Inputs</th>
+        <th>Core Logic & Operations</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>register</code></td>
+        <td><code>POST /api/auth/register</code></td>
+        <td><code>email, password, fullName, branch?, gradYear?</code></td>
+        <td>Validates via Zod schema. Hashes password using Bcrypt (10 rounds). Creates User and Profile in atomic transaction. Generates JWT pair.</td>
+      </tr>
+      <tr>
+        <td><code>login</code></td>
+        <td><code>POST /api/auth/login</code></td>
+        <td><code>email, password</code></td>
+        <td>Finds user by email. Verifies password with <code>bcrypt.compare</code>. Generates new JWT pair and stores refresh token hash.</td>
+      </tr>
+      <tr>
+        <td><code>sendOtp</code></td>
+        <td><code>POST /api/auth/send-otp</code></td>
+        <td><code>email</code></td>
+        <td>Generates cryptographically random 6-digit OTP. Stores in memory cache with 10-minute TTL. Dispatches verification code.</td>
+      </tr>
+      <tr>
+        <td><code>verifyOtp</code></td>
+        <td><code>POST /api/auth/verify-otp</code></td>
+        <td><code>email, code</code></td>
+        <td>Verifies code against cache and expiration. Invalidates code upon successful verification and completes session.</td>
+      </tr>
+      <tr>
+        <td><code>refreshToken</code></td>
+        <td><code>POST /api/auth/refresh-token</code></td>
+        <td><code>refreshToken</code></td>
+        <td>Verifies signature. Deletes old token and creates new rotated pair in PostgreSQL (<strong>Refresh Token Rotation</strong>).</td>
+      </tr>
+      <tr>
+        <td><code>authenticateToken</code></td>
+        <td>Express Middleware</td>
+        <td><code>Authorization: Bearer &lt;token&gt;</code></td>
+        <td>Verifies JWT signature. Attaches <code>req.user = { userId, email }</code>. Rejects 401 if missing, 403 if invalid/expired.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Module 2: Projects & Innovation Board</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 24%;">Function</th>
+        <th style="width: 26%;">Route & Method</th>
+        <th style="width: 25%;">Inputs</th>
+        <th>Core Logic & Operations</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>getProjects</code></td>
+        <td><code>GET /api/projects</code></td>
+        <td><code>search, branch, techStack, status, page, limit</code></td>
+        <td>Dynamic query builder with case-insensitive search. Performs pagination (<code>skip</code>, <code>take</code>) and counts upvotes/comments/applications.</td>
+      </tr>
+      <tr>
+        <td><code>createProject</code></td>
+        <td><code>POST /api/projects</code></td>
+        <td>Project payload</td>
+        <td>Validates inputs via Zod. Sets <code>ownerId = req.user.userId</code>. Inserts project record into PostgreSQL.</td>
+      </tr>
+      <tr>
+        <td><code>toggleUpvote</code></td>
+        <td><code>POST /api/projects/:id/upvote</code></td>
+        <td><code>params.id</code></td>
+        <td>Atomic query against compound unique key <code>[projectId, userId]</code>. Deletes if existing; creates if absent.</td>
+      </tr>
+      <tr>
+        <td><code>addComment</code></td>
+        <td><code>POST /api/projects/:id/comments</code></td>
+        <td><code>params.id, content</code></td>
+        <td>Validates content non-empty. Inserts comment tied to author profile.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Page Break for Clean Layout -->
+  <div class="page-break"></div>
+
+  <h3>Module 3: Team Formation & Automated Chat Provisioning</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 24%;">Function</th>
+        <th style="width: 26%;">Route & Method</th>
+        <th style="width: 25%;">Inputs</th>
+        <th>Core Logic & Operations</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>applyToProject</code></td>
+        <td><code>POST /api/projects/:id/apply</code></td>
+        <td><code>params.id, note, contactLink?</code></td>
+        <td>Enforces business rules (cannot apply to own project; cannot double-apply via <code>@@unique([projectId, userId])</code>). Dispatches real-time WebSocket notification to owner.</td>
+      </tr>
+      <tr>
+        <td><code>updateApplicationStatus</code></td>
+        <td><code>PATCH /api/applications/:id/status</code></td>
+        <td><code>params.id, status</code></td>
+        <td><strong>Core Recruitment Flow</strong>: When status is ACCEPTED:<br>
+        1. Updates application status.<br>
+        2. Auto-creates Team record.<br>
+        3. Assigns roles (OWNER and MEMBER).<br>
+        4. Auto-provisions a TEAM ChatConversation.<br>
+        5. Injects automated welcome message: <code>🎉 {name} joined the team!</code>.<br>
+        6. Emits WebSocket event <code>chat:message</code> and notifies applicant.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Module 4: Real-Time Chat & Sockets</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 24%;">Function / Event</th>
+        <th style="width: 26%;">Transport</th>
+        <th style="width: 25%;">Payload</th>
+        <th>Core Logic & Operations</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>getConversations</code></td>
+        <td><code>GET /api/chat/conversations</code></td>
+        <td>Bearer Token</td>
+        <td>Queries user's conversations with participants, team details, and latest message snippet.</td>
+      </tr>
+      <tr>
+        <td><code>getMessages</code></td>
+        <td><code>GET /api/chat/:id/messages</code></td>
+        <td><code>params.id</code></td>
+        <td>Verifies participant authorization. Fetches messages ordered chronologically. Updates <code>lastReadAt</code>.</td>
+      </tr>
+      <tr>
+        <td><code>send_message</code></td>
+        <td>WebSocket Event</td>
+        <td><code>conversationId, content</code></td>
+        <td>Persists message into PostgreSQL via Prisma and emits to room <code>conversation:${id}</code>.</td>
+      </tr>
+      <tr>
+        <td><code>typing_start / stop</code></td>
+        <td>WebSocket Event</td>
+        <td><code>conversationId</code></td>
+        <td>Broadcasts live typing state to room participants without database overhead.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 5: Database Design -->
+  <h2>5. Relational Database Design (Prisma Schema)</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Model Name</th>
+        <th style="width: 30%;">Relationships</th>
+        <th>Integrity Constraints & Index Strategy</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>User & Profile</strong></td>
+        <td><code>User (1:1) Profile</code></td>
+        <td><code>email @unique</code>. Profile cascades on user delete (<code>onDelete: Cascade</code>).</td>
+      </tr>
+      <tr>
+        <td><strong>RefreshToken</strong></td>
+        <td><code>User (1:N) RefreshToken</code></td>
+        <td><code>token @unique</code>. Stored hashed with expiration for token revocation.</td>
+      </tr>
+      <tr>
+        <td><strong>Project & Upvote</strong></td>
+        <td><code>Project (1:N) ProjectUpvote</code></td>
+        <td><strong>Compound Unique Constraint:</strong> <code>@@unique([projectId, userId])</code> prevents duplicate votes. <code>@@index([ownerId])</code> for fast profile queries.</td>
+      </tr>
+      <tr>
+        <td><strong>Application</strong></td>
+        <td><code>Project (1:N) Application</code></td>
+        <td><strong>Compound Unique Constraint:</strong> <code>@@unique([projectId, userId])</code> ensures idempotency in recruitment applications.</td>
+      </tr>
+      <tr>
+        <td><strong>Team & TeamMember</strong></td>
+        <td><code>Team (1:N) TeamMember</code></td>
+        <td><code>projectId @unique</code> ensures 1:1 project-to-team mapping. <code>@@unique([teamId, userId])</code> prevents duplicate roster entries.</td>
+      </tr>
+      <tr>
+        <td><strong>Chat & Message</strong></td>
+        <td><code>ChatConversation (1:N) Message</code></td>
+        <td><code>@@index([conversationId, createdAt])</code> optimizes chronological message loading during chat scrolling.</td>
+      </tr>
+      <tr>
+        <td><strong>Notification</strong></td>
+        <td><code>User (1:N) Notification</code></td>
+        <td><code>@@index([userId, isRead])</code> accelerates unread badge count queries.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Page Break for Clean Layout -->
+  <div class="page-break"></div>
+
+  <!-- Section 6: Top 15 Viva Questions & Answers -->
+  <h2>6. Placement Drive Technical Viva Question Bank (Top 15 Q&As)</h2>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q1</span> Why choose PostgreSQL over MongoDB for CampusConnect?</div>
+    <div class="qa-answer">CampusConnect is inherently relational: users own projects, projects have teams, teams have members, and teams map 1-to-1 with chat conversations. PostgreSQL provides ACID compliance, foreign key cascade constraints, and compound unique constraints (<code>[projectId, userId]</code>) at the storage engine level, preventing duplicate votes or applications without complex distributed locks.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q2</span> How does JWT Refresh Token Rotation protect against replay attacks?</div>
+    <div class="qa-answer">With Token Rotation, each refresh token can only be used once. When a client requests a new access token, the server verifies the refresh token, deletes it from the database table, and issues both a new access token and a brand new refresh token. If an attacker intercepts a used token, subsequent reuse is immediately rejected, terminating the compromised session.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q3</span> What is Optimistic UI and where did you implement it?</div>
+    <div class="qa-answer">Optimistic UI immediately updates the client interface before the server responds, assuming success. In CampusConnect, I implemented this on the <strong>Project Upvote</strong> button. The upvote count increments and highlights immediately. If the server request fails, the client catches the error and reverts back to the original count.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q4</span> How does Socket.io differ from standard native WebSockets?</div>
+    <div class="qa-answer">Socket.io provides automatic fallback to HTTP long-polling if WebSockets are blocked by campus firewalls, heartbeat ping-pong monitoring, automatic reconnection with exponential backoff, and logical rooms (<code>socket.join('conversation:id')</code>) to broadcast messages exclusively to specific team participants.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q5</span> How does the 2-Factor Authentication (OTP) workflow function?</div>
+    <div class="qa-answer">When a student registers or signs in, primary credentials are validated first. The server generates a cryptographically random 6-digit OTP stored with a 10-minute TTL. The client transitions to the 2FA screen. Only when the student inputs the matching code does the backend issue the final JWT access and refresh token pair.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q6</span> What happens in the database when a project application is accepted?</div>
+    <div class="qa-answer">It executes an atomic orchestration: updates <code>Application.status = 'ACCEPTED'</code>, finds or creates a <code>Team</code> record, assigns the owner as <code>OWNER</code> and applicant as <code>MEMBER</code> in <code>TeamMember</code>, auto-provisions a <code>TEAM</code> chat conversation, registers both participants, injects a system welcome message, and emits a real-time notification to <code>user:${applicantId}</code>.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q7</span> How do you prevent SQL Injection and XSS attacks?</div>
+    <div class="qa-answer">SQL Injection is prevented by using Prisma ORM, which parameterizes all SQL queries automatically. XSS is mitigated by React Native, which does not execute raw HTML strings inside native views, and by validating all incoming request bodies against strict Zod schemas.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q8</span> How does the mobile client handle authenticated requests?</div>
+    <div class="qa-answer">We configure an Axios HTTP client with request and response interceptors. The request interceptor attaches <code>Authorization: Bearer &lt;token&gt;</code>. The response interceptor listens for 401 Unauthorized errors, calls <code>/api/auth/refresh-token</code>, updates the stored token in Zustand, and retries the original request seamlessly.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q9</span> How would you scale CampusConnect to 100,000 active students across 50 colleges?</div>
+    <div class="qa-answer">1. <strong>Multi-Tenancy</strong>: Add an indexed <code>collegeId</code> column across tables.<br>
+    2. <strong>Database Scaling</strong>: Introduce PostgreSQL read replicas for read-heavy feeds.<br>
+    3. <strong>WebSocket Scaling</strong>: Attach <code>@socket.io/redis-adapter</code> with Redis Pub/Sub to broadcast events across multiple clustered Node.js server processes.<br>
+    4. <strong>Caching</strong>: Place Redis in front of frequently queried project feeds.<br>
+    5. <strong>CDN Storage</strong>: Store student media in Amazon S3 distributed via CloudFront.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q10</span> What indexing strategies are used in your schema and why?</div>
+    <div class="qa-answer">Targeted B-tree indexes: <code>@@index([ownerId])</code> on <code>Project</code> for user portfolio filtering, <code>@@index([conversationId, createdAt])</code> on <code>Message</code> for chronological chat pagination, and <code>@@index([userId, isRead])</code> on <code>Notification</code> to calculate unread counters in O(log N) time.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q11</span> Explain how compound unique constraints solve business problems in your database.</div>
+    <div class="qa-answer">In a mobile app, users might repeatedly tap 'Upvote' or 'Apply'. By defining <code>@@unique([projectId, userId])</code> on <code>ProjectUpvote</code> and <code>Application</code>, the database physically rejects duplicate records, guaranteeing idempotency at the storage engine level.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q12</span> How did you design the state management in the React Native application?</div>
+    <div class="qa-answer">I used <strong>Zustand</strong>. It provides lightweight stores with minimal boilerplate: <code>useAuthStore</code> manages user profile, tokens, and device accounts; <code>useSocketStore</code> manages the persistent WebSocket connection lifecycle across screens without prop-drilling.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q13</span> What HTTP status codes do your REST APIs return and why?</div>
+    <div class="qa-answer"><code>200 OK</code> for queries and updates, <code>201 Created</code> for creating projects/applications, <code>400 Bad Request</code> for Zod validation errors, <code>401 Unauthorized</code> for missing/expired tokens, <code>403 Forbidden</code> for unauthorized mutations, <code>404 Not Found</code> for missing resources, and <code>500</code> handled by centralized error middleware.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q14</span> What was the most challenging bug you encountered and how did you resolve it?</div>
+    <div class="qa-answer">During team formation on applicant acceptance, concurrent approvals could spawn duplicate team chat rooms. I resolved this by enforcing <code>projectId String @unique</code> on the <code>Team</code> model and implementing an upsert/find-or-create pattern so only one team and one group chat ever exists per project.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question"><span class="q-num">Q15</span> What are your key takeaways from building this project?</div>
+    <div class="qa-answer">Building CampusConnect taught me how to architect an end-to-end full-stack product. I gained hands-on experience in atomic relational transactions with Prisma, optimistic client-side UI updates, real-time WebSocket room broadcasting, and enterprise auth with token rotation and 2FA.</div>
+  </div>
+
+  <div class="footer-note">
+    CampusConnect Technical Placement & Viva Report • Generated for Campus Recruitment Drives & Technical Interviews
+  </div>
+
+</body>
+</html>
