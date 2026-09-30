@@ -11,7 +11,6 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import { colors, shadows } from '../theme/colors';
 import { authApi } from '../api/authApi';
 import { useAuthStore, DeviceAccount } from '../store/authStore';
 import { showAlert } from '../utils/alert';
@@ -237,11 +236,13 @@ export const RegisterScreen = ({ navigation }: any) => {
           <View style={styles.logoBadge}>
             <Text style={styles.logoIcon}>🎓</Text>
           </View>
-          <Text style={styles.brandTitle}>Join CampusConnect</Text>
+          <Text style={styles.brandTitle}>
+            Join Campus<Text style={styles.brandTitleAccent}>Connect</Text>
+          </Text>
           <Text style={styles.brandTagline}>Showcase projects, build teams, and get hired</Text>
         </View>
 
-        {/* Card Container (Enhanced Width) */}
+        {/* Card Container (Matching 500px Sleek Midnight Card) */}
         <View style={styles.card}>
           {step === 'REGISTER' ? (
             <>
@@ -272,7 +273,7 @@ export const RegisterScreen = ({ navigation }: any) => {
                     <TextInput
                       style={styles.textInput}
                       placeholder="e.g. John"
-                      placeholderTextColor="#94A3B8"
+                      placeholderTextColor="#64748B"
                       value={firstName}
                       onChangeText={(text) => {
                         setFirstName(text);
@@ -295,7 +296,7 @@ export const RegisterScreen = ({ navigation }: any) => {
                     <TextInput
                       style={styles.textInput}
                       placeholder="e.g. Doe"
-                      placeholderTextColor="#94A3B8"
+                      placeholderTextColor="#64748B"
                       value={surname}
                       onChangeText={(text) => {
                         setSurname(text);
@@ -321,7 +322,7 @@ export const RegisterScreen = ({ navigation }: any) => {
                   <TextInput
                     style={styles.textInput}
                     placeholder="e.g. student@campus.edu"
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor="#64748B"
                     value={email}
                     onChangeText={(text) => {
                       setEmail(text);
@@ -349,7 +350,7 @@ export const RegisterScreen = ({ navigation }: any) => {
                   <TextInput
                     style={styles.textInput}
                     placeholder="Create a secure password"
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor="#64748B"
                     value={password}
                     onChangeText={(text) => {
                       setPassword(text);
@@ -440,7 +441,7 @@ export const RegisterScreen = ({ navigation }: any) => {
                 >
                   <Image
                     source={{ uri: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png' }}
-                    style={styles.socialLogo}
+                    style={[styles.socialLogo, styles.githubLogo]}
                   />
                   <Text style={styles.socialBtnText}>GitHub</Text>
                 </TouchableOpacity>
@@ -512,7 +513,7 @@ export const RegisterScreen = ({ navigation }: any) => {
                   <TextInput
                     style={styles.otpInput}
                     placeholder="123456"
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor="#64748B"
                     value={otpCode}
                     onChangeText={setOtpCode}
                     onFocus={() => setFocusedField('otp')}
@@ -640,7 +641,7 @@ export const RegisterScreen = ({ navigation }: any) => {
                     placeholder={
                       socialModalType === 'google' ? 'Your email address' : 'Your GitHub username'
                     }
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor="#64748B"
                     value={socialInput}
                     onChangeText={setSocialInput}
                     autoCapitalize="none"
@@ -661,7 +662,7 @@ export const RegisterScreen = ({ navigation }: any) => {
                 }}
                 style={{ alignItems: 'center', marginTop: 10 }}
               >
-                <Text style={{ color: '#64748B', fontSize: 14, fontWeight: '500' }}>Cancel</Text>
+                <Text style={{ color: '#94A3B8', fontSize: 14, fontWeight: '500' }}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -674,13 +675,13 @@ export const RegisterScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#0B0F17', // Dark Midnight Canvas
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: 44,
     paddingHorizontal: 16,
   },
   topAccentBar: {
@@ -688,55 +689,67 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 4,
-    backgroundColor: colors.primary,
+    height: 3,
+    backgroundColor: '#10B981',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 4,
   },
   brandHeader: {
     alignItems: 'center',
     marginBottom: 24,
   },
   logoBadge: {
-    width: 60,
-    height: 60,
-    borderRadius: 18,
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
+    width: 62,
+    height: 62,
+    borderRadius: 20,
+    backgroundColor: '#064E3B',
+    borderColor: '#059669',
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    ...shadows.sm,
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 6,
   },
   logoIcon: {
-    fontSize: 30,
+    fontSize: 32,
   },
   brandTitle: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '800',
-    color: '#0F172A',
+    color: '#F8FAFC',
     letterSpacing: -0.5,
     marginBottom: 4,
   },
+  brandTitleAccent: {
+    color: '#10B981',
+  },
   brandTagline: {
     fontSize: 14,
-    color: '#64748B',
+    color: '#94A3B8',
     fontWeight: '500',
     marginBottom: 10,
     textAlign: 'center',
   },
   card: {
     width: '100%',
-    maxWidth: 500, // Matching generous 500px width
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E2E8F0',
+    maxWidth: 500,
+    backgroundColor: '#1E293B',
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 20,
-    padding: 30,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 4,
+    padding: 32,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.45,
+    shadowRadius: 28,
+    elevation: 8,
   },
   cardHeader: {
     marginBottom: 20,
@@ -744,13 +757,13 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#F8FAFC',
     letterSpacing: -0.3,
     marginBottom: 6,
   },
   cardSubtitle: {
     fontSize: 14,
-    color: '#64748B',
+    color: '#94A3B8',
     lineHeight: 20,
   },
   rowTwoCols: {
@@ -763,22 +776,25 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#334155',
+    color: '#E2E8F0',
     marginBottom: 6,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderColor: '#CBD5E1',
+    backgroundColor: '#0F172A',
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 12,
   },
   inputFocused: {
-    borderColor: '#059669',
-    backgroundColor: '#FFFFFF',
+    borderColor: '#10B981',
     borderWidth: 1.5,
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
   },
   inputLeadingIcon: {
     fontSize: 16,
@@ -788,7 +804,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 15,
-    color: '#0F172A',
+    color: '#F8FAFC',
   },
   eyeBtn: {
     padding: 6,
@@ -799,8 +815,8 @@ const styles = StyleSheet.create({
   twoFaToggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderColor: '#E2E8F0',
+    backgroundColor: '#0F172A',
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 10,
     padding: 10,
@@ -812,14 +828,14 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 5,
     borderWidth: 1.5,
-    borderColor: '#94A3B8',
-    backgroundColor: '#FFFFFF',
+    borderColor: '#64748B',
+    backgroundColor: '#0B0F17',
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxActive: {
-    backgroundColor: '#059669',
-    borderColor: '#059669',
+    backgroundColor: '#10B981',
+    borderColor: '#10B981',
   },
   checkMark: {
     color: '#FFFFFF',
@@ -829,11 +845,11 @@ const styles = StyleSheet.create({
   twoFaToggleTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#F8FAFC',
   },
   twoFaToggleSub: {
     fontSize: 10,
-    color: '#64748B',
+    color: '#94A3B8',
   },
   primaryBtn: {
     backgroundColor: '#059669',
@@ -841,11 +857,11 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#059669',
+    shadowColor: '#10B981',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 4,
   },
   btnDisabled: {
     opacity: 0.7,
@@ -868,10 +884,10 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: '#334155',
   },
   dividerText: {
-    color: '#94A3B8',
+    color: '#64748B',
     fontSize: 11,
     fontWeight: '700',
     marginHorizontal: 12,
@@ -886,8 +902,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderColor: '#CBD5E1',
+    backgroundColor: '#0F172A',
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 10,
     paddingVertical: 11,
@@ -898,8 +914,11 @@ const styles = StyleSheet.create({
     height: 18,
     resizeMode: 'contain',
   },
+  githubLogo: {
+    tintColor: '#F8FAFC',
+  },
   socialBtnText: {
-    color: '#1E293B',
+    color: '#F8FAFC',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -908,19 +927,19 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   switchText: {
-    color: '#64748B',
+    color: '#94A3B8',
     fontSize: 14,
   },
   switchLink: {
-    color: '#4F46E5',
+    color: '#818CF8',
     fontWeight: '700',
   },
   footerTerms: {
-    marginTop: 30,
+    marginTop: 32,
     alignItems: 'center',
   },
   footerTermsText: {
-    color: '#64748B',
+    color: '#94A3B8',
     fontSize: 12,
     fontWeight: '600',
     textAlign: 'center',
@@ -928,8 +947,8 @@ const styles = StyleSheet.create({
   errorBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FECACA',
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    borderColor: 'rgba(239, 68, 68, 0.35)',
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 12,
@@ -942,9 +961,9 @@ const styles = StyleSheet.create({
   },
   errorText: {
     flex: 1,
-    color: '#DC2626',
+    color: '#F87171',
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: '600',
   },
 
   // 2FA
@@ -953,33 +972,33 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   twoStepIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#EEF2FF',
-    borderColor: '#C7D2FE',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(79, 70, 229, 0.15)',
+    borderColor: '#4F46E5',
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
   },
   twoStepIcon: {
-    fontSize: 22,
+    fontSize: 24,
   },
   twoStepTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#F8FAFC',
     marginBottom: 4,
   },
   twoStepSubtitle: {
     fontSize: 13,
-    color: '#64748B',
+    color: '#94A3B8',
     textAlign: 'center',
   },
   emailNoticeBox: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#BBF7D0',
+    backgroundColor: 'rgba(16, 185, 129, 0.10)',
+    borderColor: 'rgba(16, 185, 129, 0.35)',
     borderWidth: 1,
     borderRadius: 12,
     padding: 14,
@@ -997,20 +1016,20 @@ const styles = StyleSheet.create({
   emailNoticeTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#15803D',
+    color: '#34D399',
   },
   emailNoticeText: {
     fontSize: 12,
-    color: '#166534',
+    color: '#A7F3D0',
   },
   emailNoticeTarget: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#14532D',
+    color: '#6EE7B7',
     marginBottom: 8,
   },
   codeHintPill: {
-    backgroundColor: '#DCFCE7',
+    backgroundColor: 'rgba(16, 185, 129, 0.20)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -1018,11 +1037,11 @@ const styles = StyleSheet.create({
   },
   codeHintText: {
     fontSize: 11,
-    color: '#166534',
+    color: '#A7F3D0',
   },
   codeHintBold: {
     fontWeight: '800',
-    color: '#14532D',
+    color: '#FFFFFF',
   },
   otpContainer: {
     justifyContent: 'center',
@@ -1033,11 +1052,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     letterSpacing: 8,
     fontWeight: '800',
-    color: '#0F172A',
+    color: '#F8FAFC',
   },
   autoVerifyChip: {
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderColor: '#059669',
     borderWidth: 1,
     borderRadius: 8,
     paddingVertical: 10,
@@ -1045,7 +1064,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   autoVerifyChipText: {
-    color: '#059669',
+    color: '#34D399',
     fontSize: 13,
     fontWeight: '700',
   },
@@ -1055,7 +1074,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   skipBtnText: {
-    color: '#4F46E5',
+    color: '#818CF8',
     fontSize: 13,
     fontWeight: '600',
   },
@@ -1066,10 +1085,10 @@ const styles = StyleSheet.create({
     marginTop: 18,
     paddingTop: 14,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: '#334155',
   },
   backLinkText: {
-    color: '#64748B',
+    color: '#94A3B8',
     fontSize: 13,
     fontWeight: '600',
   },
@@ -1081,39 +1100,43 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(15, 23, 42, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
     zIndex: 100,
   },
   modalCard: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E2E8F0',
+    backgroundColor: '#1E293B',
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 20,
     padding: 24,
     width: '100%',
     maxWidth: 460,
-    ...shadows.lg,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.5,
+    shadowRadius: 28,
+    elevation: 10,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#F8FAFC',
     textAlign: 'center',
     marginBottom: 4,
   },
   modalSubtitle: {
     fontSize: 13,
-    color: '#64748B',
+    color: '#94A3B8',
     textAlign: 'center',
     marginBottom: 16,
   },
   deviceAccountsHeader: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#94A3B8',
+    color: '#64748B',
     letterSpacing: 0.5,
     marginBottom: 8,
   },
@@ -1124,8 +1147,8 @@ const styles = StyleSheet.create({
   accountCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderColor: '#E2E8F0',
+    backgroundColor: '#0F172A',
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 10,
     padding: 10,
@@ -1135,34 +1158,34 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: 'rgba(79, 70, 229, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   accountAvatarText: {
-    color: '#4F46E5',
+    color: '#818CF8',
     fontSize: 16,
     fontWeight: '700',
   },
   accountName: {
-    color: '#0F172A',
+    color: '#F8FAFC',
     fontSize: 14,
     fontWeight: '600',
   },
   accountIdentifier: {
-    color: '#64748B',
+    color: '#94A3B8',
     fontSize: 12,
   },
   deviceBadge: {
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderColor: '#059669',
     borderWidth: 1,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
   deviceBadgeText: {
-    color: '#059669',
+    color: '#34D399',
     fontSize: 10,
     fontWeight: '700',
   },
@@ -1172,12 +1195,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   useAnotherText: {
-    color: '#4F46E5',
+    color: '#818CF8',
     fontSize: 13,
     fontWeight: '600',
   },
   modalTextInput: {
-    borderColor: '#CBD5E1',
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 12,

@@ -11,7 +11,6 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import { colors, shadows } from '../theme/colors';
 import { authApi } from '../api/authApi';
 import { useAuthStore, DeviceAccount } from '../store/authStore';
 import { showAlert } from '../utils/alert';
@@ -50,24 +49,27 @@ export const LoginScreen = ({ navigation }: any) => {
       role: 'CS Lead',
       email: 'alex.chen@campus.edu',
       password: 'password123',
-      color: '#059669',
-      bgColor: '#ECFDF5',
+      color: '#10B981',
+      bgColor: 'rgba(16, 185, 129, 0.12)',
+      borderColor: 'rgba(16, 185, 129, 0.35)',
     },
     {
       name: 'Maya Patel',
       role: 'AI Researcher',
       email: 'maya.patel@campus.edu',
       password: 'password123',
-      color: '#4F46E5',
-      bgColor: '#EEF2FF',
+      color: '#818CF8',
+      bgColor: 'rgba(129, 140, 248, 0.12)',
+      borderColor: 'rgba(129, 140, 248, 0.35)',
     },
     {
       name: 'Liam Ross',
       role: 'UI Designer',
       email: 'liam.ross@campus.edu',
       password: 'password123',
-      color: '#D97706',
-      bgColor: '#FFFBEB',
+      color: '#FBBF24',
+      bgColor: 'rgba(251, 191, 36, 0.12)',
+      borderColor: 'rgba(251, 191, 36, 0.35)',
     },
   ];
 
@@ -86,7 +88,6 @@ export const LoginScreen = ({ navigation }: any) => {
       setOtpCode('');
       setErrorMsg('');
     } catch (err: any) {
-      // Even if email dispatch is offline, proceed to 2FA so tester can enter code 123456
       setPendingAuth(authData);
       setStep('2FA');
       setOtpCode('');
@@ -115,10 +116,8 @@ export const LoginScreen = ({ navigation }: any) => {
 
       if (res && res.success && res.data) {
         if (enable2FA) {
-          // If user specifically requested 2-step verification demonstration
           await initiate2FA(trimmedEmail, res.data);
         } else {
-          // Instant direct sign-in for seamless experience
           setAuth(
             res.data.user,
             res.data.tokens.accessToken,
@@ -261,7 +260,7 @@ export const LoginScreen = ({ navigation }: any) => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Decorative Ambient Top Bar */}
+        {/* Decorative Top Accent Glow */}
         <View style={styles.topAccentBar} />
 
         {/* Branding Header */}
@@ -269,7 +268,9 @@ export const LoginScreen = ({ navigation }: any) => {
           <View style={styles.logoBadge}>
             <Text style={styles.logoIcon}>🎓</Text>
           </View>
-          <Text style={styles.brandTitle}>CampusConnect</Text>
+          <Text style={styles.brandTitle}>
+            Campus<Text style={styles.brandTitleAccent}>Connect</Text>
+          </Text>
           <Text style={styles.brandTagline}>Student Project Hub & Talent Marketplace</Text>
           <View style={styles.verifiedCampusPill}>
             <View style={styles.onlineDot} />
@@ -277,7 +278,7 @@ export const LoginScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Main Auth Card (Enhanced Width & Aesthetic) */}
+        {/* Main Dark Midnight Card (Expanded 500px Width) */}
         <View style={styles.card}>
           {step === 'CREDENTIALS' ? (
             <>
@@ -309,8 +310,11 @@ export const LoginScreen = ({ navigation }: any) => {
                       key={acc.name}
                       style={[
                         styles.demoChip,
-                        { borderColor: acc.color, backgroundColor: acc.bgColor },
-                        email === acc.email && styles.demoChipActive,
+                        { borderColor: acc.borderColor, backgroundColor: acc.bgColor },
+                        email === acc.email && [
+                          styles.demoChipActive,
+                          { borderColor: acc.color, shadowColor: acc.color },
+                        ],
                       ]}
                       onPress={() => handleSelectDemo(acc)}
                       activeOpacity={0.7}
@@ -337,7 +341,7 @@ export const LoginScreen = ({ navigation }: any) => {
                   <TextInput
                     style={styles.textInput}
                     placeholder="e.g. alex.chen@campus.edu"
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor="#64748B"
                     value={email}
                     onChangeText={(text) => {
                       setEmail(text);
@@ -377,7 +381,7 @@ export const LoginScreen = ({ navigation }: any) => {
                   <TextInput
                     style={styles.textInput}
                     placeholder="Enter your password"
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor="#64748B"
                     value={password}
                     onChangeText={(text) => {
                       setPassword(text);
@@ -477,7 +481,7 @@ export const LoginScreen = ({ navigation }: any) => {
                 >
                   <Image
                     source={{ uri: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png' }}
-                    style={styles.socialLogo}
+                    style={[styles.socialLogo, styles.githubLogo]}
                   />
                   <Text style={styles.socialBtnText}>GitHub</Text>
                 </TouchableOpacity>
@@ -551,7 +555,7 @@ export const LoginScreen = ({ navigation }: any) => {
                   <TextInput
                     style={styles.otpInput}
                     placeholder="123456"
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor="#64748B"
                     value={otpCode}
                     onChangeText={setOtpCode}
                     onFocus={() => setFocusedField('otp')}
@@ -686,7 +690,7 @@ export const LoginScreen = ({ navigation }: any) => {
                     placeholder={
                       socialModalType === 'google' ? 'Your email address' : 'Your GitHub username'
                     }
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor="#64748B"
                     value={socialInput}
                     onChangeText={setSocialInput}
                     autoCapitalize="none"
@@ -707,7 +711,7 @@ export const LoginScreen = ({ navigation }: any) => {
                 }}
                 style={{ alignItems: 'center', marginTop: 10 }}
               >
-                <Text style={{ color: '#64748B', fontSize: 14, fontWeight: '500' }}>Cancel</Text>
+                <Text style={{ color: '#94A3B8', fontSize: 14, fontWeight: '500' }}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -720,13 +724,13 @@ export const LoginScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC', // Slate 50 clean modern canvas
+    backgroundColor: '#0B0F17', // Sleek Dark Midnight Canvas
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: 44,
     paddingHorizontal: 16,
   },
   topAccentBar: {
@@ -734,78 +738,94 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 4,
-    backgroundColor: colors.primary, // Emerald 600 accent
+    height: 3,
+    backgroundColor: '#10B981', // Glowing Emerald top stripe
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 4,
   },
   brandHeader: {
     alignItems: 'center',
     marginBottom: 24,
   },
   logoBadge: {
-    width: 60,
-    height: 60,
-    borderRadius: 18,
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
+    width: 62,
+    height: 62,
+    borderRadius: 20,
+    backgroundColor: '#064E3B',
+    borderColor: '#059669',
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    ...shadows.sm,
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 6,
   },
   logoIcon: {
-    fontSize: 30,
+    fontSize: 32,
   },
   brandTitle: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '800',
-    color: '#0F172A',
+    color: '#F8FAFC',
     letterSpacing: -0.5,
     marginBottom: 4,
   },
+  brandTitleAccent: {
+    color: '#10B981',
+  },
   brandTagline: {
     fontSize: 14,
-    color: '#64748B',
+    color: '#94A3B8',
     fontWeight: '500',
-    marginBottom: 10,
+    marginBottom: 12,
     textAlign: 'center',
   },
   verifiedCampusPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EEF2FF',
-    borderColor: '#C7D2FE',
+    backgroundColor: 'rgba(30, 27, 75, 0.7)',
+    borderColor: '#4338CA',
     borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: 20,
-    gap: 6,
+    gap: 7,
   },
   onlineDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: '#10B981',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 6,
   },
   verifiedCampusText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#4F46E5',
+    color: '#C7D2FE',
     letterSpacing: 0.3,
   },
   card: {
     width: '100%',
-    maxWidth: 500, // Enhanced generous width for comfortable reading and input
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E2E8F0',
+    maxWidth: 500, // Spacious generous 500px width
+    backgroundColor: '#1E293B', // Elevated Sleek Slate-800 Card
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 20,
-    padding: 30,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 4,
+    padding: 32,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.45,
+    shadowRadius: 28,
+    elevation: 8,
   },
   cardHeader: {
     marginBottom: 20,
@@ -813,20 +833,20 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#F8FAFC',
     letterSpacing: -0.3,
     marginBottom: 6,
   },
   cardSubtitle: {
     fontSize: 14,
-    color: '#64748B',
+    color: '#94A3B8',
     lineHeight: 20,
   },
   errorBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FECACA',
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    borderColor: 'rgba(239, 68, 68, 0.35)',
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 12,
@@ -839,13 +859,13 @@ const styles = StyleSheet.create({
   },
   errorText: {
     flex: 1,
-    color: '#DC2626',
+    color: '#F87171',
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   demoSection: {
-    backgroundColor: '#F8FAFC',
-    borderColor: '#E2E8F0',
+    backgroundColor: '#0F172A',
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 12,
     padding: 12,
@@ -860,12 +880,12 @@ const styles = StyleSheet.create({
   demoSectionTitle: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#059669',
+    color: '#34D399',
     letterSpacing: 0.5,
   },
   demoSectionHint: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: '#64748B',
     fontWeight: '600',
   },
   demoChipsRow: {
@@ -876,13 +896,16 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderRadius: 8,
-    paddingVertical: 7,
+    paddingVertical: 8,
     paddingHorizontal: 8,
     alignItems: 'center',
   },
   demoChipActive: {
     transform: [{ scale: 1.02 }],
     borderWidth: 1.5,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
   },
   demoChipName: {
     fontSize: 12,
@@ -890,8 +913,8 @@ const styles = StyleSheet.create({
   },
   demoChipRole: {
     fontSize: 10,
-    color: '#64748B',
-    marginTop: 1,
+    color: '#94A3B8',
+    marginTop: 2,
   },
   inputGroup: {
     marginBottom: 16,
@@ -899,7 +922,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#334155',
+    color: '#E2E8F0',
     marginBottom: 6,
   },
   passwordLabelRow: {
@@ -910,22 +933,25 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     fontSize: 11,
-    color: '#64748B',
+    color: '#94A3B8',
     fontWeight: '500',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderColor: '#CBD5E1',
+    backgroundColor: '#0F172A', // Dark Slate Input
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 12,
   },
   inputFocused: {
-    borderColor: '#059669', // Emerald active focus
-    backgroundColor: '#FFFFFF',
+    borderColor: '#10B981', // Glowing Emerald focus
     borderWidth: 1.5,
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
   },
   inputLeadingIcon: {
     fontSize: 16,
@@ -935,7 +961,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 15,
-    color: '#0F172A',
+    color: '#F8FAFC',
   },
   eyeBtn: {
     padding: 6,
@@ -946,8 +972,8 @@ const styles = StyleSheet.create({
   twoFaToggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderColor: '#E2E8F0',
+    backgroundColor: '#0F172A',
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 10,
     padding: 10,
@@ -959,14 +985,14 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 5,
     borderWidth: 1.5,
-    borderColor: '#94A3B8',
-    backgroundColor: '#FFFFFF',
+    borderColor: '#64748B',
+    backgroundColor: '#0B0F17',
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxActive: {
-    backgroundColor: '#059669',
-    borderColor: '#059669',
+    backgroundColor: '#10B981',
+    borderColor: '#10B981',
   },
   checkMark: {
     color: '#FFFFFF',
@@ -976,15 +1002,15 @@ const styles = StyleSheet.create({
   twoFaToggleTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#F8FAFC',
   },
   twoFaToggleSub: {
     fontSize: 10,
-    color: '#64748B',
+    color: '#94A3B8',
   },
   twoFaActiveBadge: {
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderColor: '#059669',
     borderWidth: 1,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -993,19 +1019,19 @@ const styles = StyleSheet.create({
   twoFaActiveBadgeText: {
     fontSize: 9,
     fontWeight: '800',
-    color: '#059669',
+    color: '#34D399',
   },
   primaryBtn: {
-    backgroundColor: '#059669', // Modern Emerald primary
+    backgroundColor: '#059669', // Rich Emerald 600
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#059669',
+    shadowColor: '#10B981',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 4,
   },
   btnDisabled: {
     opacity: 0.7,
@@ -1028,10 +1054,10 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: '#334155',
   },
   dividerText: {
-    color: '#94A3B8',
+    color: '#64748B',
     fontSize: 11,
     fontWeight: '700',
     marginHorizontal: 12,
@@ -1046,8 +1072,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderColor: '#CBD5E1',
+    backgroundColor: '#0F172A',
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 10,
     paddingVertical: 11,
@@ -1058,8 +1084,11 @@ const styles = StyleSheet.create({
     height: 18,
     resizeMode: 'contain',
   },
+  githubLogo: {
+    tintColor: '#F8FAFC', // White GitHub Mark in Dark Theme
+  },
   socialBtnText: {
-    color: '#1E293B',
+    color: '#F8FAFC',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -1068,27 +1097,27 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   switchText: {
-    color: '#64748B',
+    color: '#94A3B8',
     fontSize: 14,
   },
   switchLink: {
-    color: '#4F46E5', // Indigo link
+    color: '#818CF8', // Light Indigo link
     fontWeight: '700',
   },
   footerTerms: {
-    marginTop: 30,
+    marginTop: 32,
     alignItems: 'center',
   },
   footerTermsText: {
-    color: '#64748B',
+    color: '#94A3B8',
     fontSize: 12,
     fontWeight: '600',
     textAlign: 'center',
   },
   footerTermsSub: {
-    color: '#94A3B8',
+    color: '#64748B',
     fontSize: 11,
-    marginTop: 3,
+    marginTop: 4,
     textAlign: 'center',
   },
 
@@ -1098,33 +1127,33 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   twoStepIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#EEF2FF',
-    borderColor: '#C7D2FE',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(79, 70, 229, 0.15)',
+    borderColor: '#4F46E5',
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
   },
   twoStepIcon: {
-    fontSize: 22,
+    fontSize: 24,
   },
   twoStepTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#F8FAFC',
     marginBottom: 4,
   },
   twoStepSubtitle: {
     fontSize: 13,
-    color: '#64748B',
+    color: '#94A3B8',
     textAlign: 'center',
   },
   emailNoticeBox: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#BBF7D0',
+    backgroundColor: 'rgba(16, 185, 129, 0.10)',
+    borderColor: 'rgba(16, 185, 129, 0.35)',
     borderWidth: 1,
     borderRadius: 12,
     padding: 14,
@@ -1142,20 +1171,20 @@ const styles = StyleSheet.create({
   emailNoticeTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#15803D',
+    color: '#34D399',
   },
   emailNoticeText: {
     fontSize: 12,
-    color: '#166534',
+    color: '#A7F3D0',
   },
   emailNoticeTarget: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#14532D',
+    color: '#6EE7B7',
     marginBottom: 8,
   },
   codeHintPill: {
-    backgroundColor: '#DCFCE7',
+    backgroundColor: 'rgba(16, 185, 129, 0.20)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -1163,11 +1192,11 @@ const styles = StyleSheet.create({
   },
   codeHintText: {
     fontSize: 11,
-    color: '#166534',
+    color: '#A7F3D0',
   },
   codeHintBold: {
     fontWeight: '800',
-    color: '#14532D',
+    color: '#FFFFFF',
   },
   otpContainer: {
     justifyContent: 'center',
@@ -1178,11 +1207,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     letterSpacing: 8,
     fontWeight: '800',
-    color: '#0F172A',
+    color: '#F8FAFC',
   },
   autoVerifyChip: {
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderColor: '#059669',
     borderWidth: 1,
     borderRadius: 8,
     paddingVertical: 10,
@@ -1190,7 +1219,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   autoVerifyChipText: {
-    color: '#059669',
+    color: '#34D399',
     fontSize: 13,
     fontWeight: '700',
   },
@@ -1200,7 +1229,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   skipBtnText: {
-    color: '#4F46E5',
+    color: '#818CF8',
     fontSize: 13,
     fontWeight: '600',
   },
@@ -1211,10 +1240,10 @@ const styles = StyleSheet.create({
     marginTop: 18,
     paddingTop: 14,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: '#334155',
   },
   backLinkText: {
-    color: '#64748B',
+    color: '#94A3B8',
     fontSize: 13,
     fontWeight: '600',
   },
@@ -1226,39 +1255,43 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(15, 23, 42, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
     zIndex: 100,
   },
   modalCard: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E2E8F0',
+    backgroundColor: '#1E293B',
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 20,
     padding: 24,
     width: '100%',
     maxWidth: 460,
-    ...shadows.lg,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.5,
+    shadowRadius: 28,
+    elevation: 10,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#F8FAFC',
     textAlign: 'center',
     marginBottom: 4,
   },
   modalSubtitle: {
     fontSize: 13,
-    color: '#64748B',
+    color: '#94A3B8',
     textAlign: 'center',
     marginBottom: 16,
   },
   deviceAccountsHeader: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#94A3B8',
+    color: '#64748B',
     letterSpacing: 0.5,
     marginBottom: 8,
   },
@@ -1269,8 +1302,8 @@ const styles = StyleSheet.create({
   accountCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderColor: '#E2E8F0',
+    backgroundColor: '#0F172A',
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 10,
     padding: 10,
@@ -1280,34 +1313,34 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: 'rgba(79, 70, 229, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   accountAvatarText: {
-    color: '#4F46E5',
+    color: '#818CF8',
     fontSize: 16,
     fontWeight: '700',
   },
   accountName: {
-    color: '#0F172A',
+    color: '#F8FAFC',
     fontSize: 14,
     fontWeight: '600',
   },
   accountIdentifier: {
-    color: '#64748B',
+    color: '#94A3B8',
     fontSize: 12,
   },
   deviceBadge: {
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderColor: '#059669',
     borderWidth: 1,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
   deviceBadgeText: {
-    color: '#059669',
+    color: '#34D399',
     fontSize: 10,
     fontWeight: '700',
   },
@@ -1317,12 +1350,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   useAnotherText: {
-    color: '#4F46E5',
+    color: '#818CF8',
     fontSize: 13,
     fontWeight: '600',
   },
   modalTextInput: {
-    borderColor: '#CBD5E1',
+    borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 12,
